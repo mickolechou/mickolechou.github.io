@@ -1,0 +1,677 @@
+<!DOCTYPE html>
+<html lang=zh>
+<head>
+	
+	
+        <meta name="baidu-site-verification" content="IqiX1RtnVh" />
+    
+	
+        <meta name="google-site-verification" content="2AHl5z8Q4Anxqs-qCvhBuOQKmYkXWH2j5pLi8NZbV-U" />
+    
+    <meta charset="utf-8">
+    
+    <title>Redis Sentinel高可用集群搭建及Spring集成 | 迷你盒</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1" />
+    <meta name="description" content="本文将介绍如何通过Sentinel实现Redis集群(主从)的高可用方案，该方案需要使用Jedis2.2.2及以上版本（强制），Redis2.8及以上版本(可选，Sentinel最早出现在Redis2.4中，Redis2.8中Sentinel更加稳定)，同时将redis与spring-date-redis集成。
+
+一、Sentinel介绍Sentinel是Redis的高可用性（HA）解决方案，由">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Redis Sentinel高可用集群搭建及Spring集成">
+<meta property="og:url" content="https://minibox.coding.me/2016/03/23/Redis Sentinel高可用集群搭建及Spring集成/index.html">
+<meta property="og:site_name" content="迷你盒">
+<meta property="og:description" content="本文将介绍如何通过Sentinel实现Redis集群(主从)的高可用方案，该方案需要使用Jedis2.2.2及以上版本（强制），Redis2.8及以上版本(可选，Sentinel最早出现在Redis2.4中，Redis2.8中Sentinel更加稳定)，同时将redis与spring-date-redis集成。
+
+一、Sentinel介绍Sentinel是Redis的高可用性（HA）解决方案，由">
+<meta property="og:image" content="http://on8y4ksa8.bkt.clouddn.com/17-3-23/1417705-file_1490244393480_232c.png">
+<meta property="og:image" content="http://on8y4ksa8.bkt.clouddn.com/17-3-23/63944901-file_1490244479018_b31b.png">
+<meta property="og:image" content="http://on8y4ksa8.bkt.clouddn.com/17-3-23/51631728-file_1490244543432_6e50.png">
+<meta property="og:image" content="http://on8y4ksa8.bkt.clouddn.com/17-3-23/71163166-file_1490244585501_5e72.png">
+<meta property="og:updated_time" content="2017-04-17T02:08:21.486Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="Redis Sentinel高可用集群搭建及Spring集成">
+<meta name="twitter:description" content="本文将介绍如何通过Sentinel实现Redis集群(主从)的高可用方案，该方案需要使用Jedis2.2.2及以上版本（强制），Redis2.8及以上版本(可选，Sentinel最早出现在Redis2.4中，Redis2.8中Sentinel更加稳定)，同时将redis与spring-date-redis集成。
+
+一、Sentinel介绍Sentinel是Redis的高可用性（HA）解决方案，由">
+<meta name="twitter:image" content="http://on8y4ksa8.bkt.clouddn.com/17-3-23/1417705-file_1490244393480_232c.png">
+    
+
+    
+        <link rel="alternate" href="https://minibox.coding.me/atom.xml" title="迷你盒" type="application/atom+xml" />
+    
+
+    
+        <link rel="icon" href="/css/images/fav.png# path to favicon" />
+    
+
+    <link rel="stylesheet" href="/libs/font-awesome/css/font-awesome.min.css">
+    <link rel="stylesheet" href="/libs/open-sans/styles.css">
+    <link rel="stylesheet" href="/libs/source-code-pro/styles.css">
+
+    <link rel="stylesheet" href="/css/style.css">
+
+    <script src="/libs/jquery/2.1.3/jquery.min.js"></script>
+    
+    
+        <link rel="stylesheet" href="/libs/lightgallery/css/lightgallery.min.css">
+    
+    
+        <link rel="stylesheet" href="/libs/justified-gallery/justifiedGallery.min.css">
+    
+    
+    
+    
+
+
+</head>
+
+<body>
+    <div id="container">
+        <header id="header">
+    <div id="header-main" class="header-inner">
+        <div class="outer">
+            <a href="/" id="logo">
+                <i class="logo"></i>
+                <span class="site-title">迷你盒</span>
+            </a>
+            <nav id="main-nav">
+                
+                    <a class="main-nav-link" href="/."><i class="fa fa-home"></i>主页</a>
+                
+                    <a class="main-nav-link" href="/archives"><i class="fa fa-archive"></i>归档</a>
+                
+                    <a class="main-nav-link" href="/categories"><i class="fa fa-folder"></i>分类</a>
+                
+                    <a class="main-nav-link" href="/tags"><i class="fa fa-tags"></i>标签</a>
+                
+                    <a class="main-nav-link" href="/about"><i class="fa fa-user"></i>关于</a>
+                
+            </nav>
+            
+                
+                <nav id="sub-nav">
+                    <div class="profile" id="profile-nav">
+                        <a id="profile-anchor" href="javascript:;">
+                            <img class="avatar" src="/css/images/st.png" />
+                            <i class="fa fa-caret-down"></i>
+                        </a>
+                    </div>
+                </nav>
+            
+            <div id="search-form-wrap">
+
+    <form class="search-form">
+        <input type="text" class="ins-search-input search-form-input" placeholder="搜索" />
+        <button type="submit" class="search-form-submit"></button>
+    </form>
+    <div class="ins-search">
+    <div class="ins-search-mask"></div>
+    <div class="ins-search-container">
+        <div class="ins-input-wrapper">
+            <input type="text" class="ins-search-input" placeholder="想要查找什么..." />
+            <span class="ins-close ins-selectable"><i class="fa fa-times-circle"></i></span>
+        </div>
+        <div class="ins-section-wrapper">
+            <div class="ins-section-container"></div>
+        </div>
+    </div>
+</div>
+<script>
+(function (window) {
+    var INSIGHT_CONFIG = {
+        TRANSLATION: {
+            POSTS: '文章',
+            PAGES: '页面',
+            CATEGORIES: '分类',
+            TAGS: '标签',
+            UNTITLED: '(未命名)',
+        },
+        ROOT_URL: '/',
+        CONTENT_URL: '/content.json',
+    };
+    window.INSIGHT_CONFIG = INSIGHT_CONFIG;
+})(window);
+</script>
+<script src="/js/insight.js"></script>
+
+</div>
+        </div>
+    </div>
+    <div id="main-nav-mobile" class="header-sub header-inner">
+        <table class="menu outer">
+            <tr>
+                
+                    <td><a class="main-nav-link" href="/."><i class="fa fa-home"><span class="nav-link-text">主页</span></a></td>
+                
+                    <td><a class="main-nav-link" href="/archives"><i class="fa fa-archive"><span class="nav-link-text">归档</span></a></td>
+                
+                    <td><a class="main-nav-link" href="/categories"><i class="fa fa-folder"><span class="nav-link-text">分类</span></a></td>
+                
+                    <td><a class="main-nav-link" href="/tags"><i class="fa fa-tags"><span class="nav-link-text">标签</span></a></td>
+                
+                    <td><a class="main-nav-link" href="/about"><i class="fa fa-user"><span class="nav-link-text">关于</span></a></td>
+                
+                <td>
+                    
+    <div class="search-form">
+        <input type="text" class="ins-search-input search-form-input" placeholder="搜索" />
+    </div>
+
+                </td>
+            </tr>
+        </table>
+    </div>
+</header>
+
+        <div class="outer">
+            
+                
+
+<aside id="profile">
+    <div class="inner profile-inner">
+        <div class="base-info profile-block">
+            <img id="avatar" src="/css/images/st.png" />
+            <h2 id="name">Mickole Chou</h2>
+            <h3 id="title">Developer &amp; Writer</h3>
+            <span id="location"><i class="fa fa-map-marker"></i>Chengdu, China</span>
+            <a id="follow" target="_blank" href="https://github.com/mickolechou">关注我</a>
+        </div>
+        <div class="article-info profile-block">
+            <div class="article-info-block">
+                7
+                <span>文章</span>
+            </div>
+            <div class="article-info-block">
+                9
+                <span>标签</span>
+            </div>
+        </div>
+        
+        <div class="profile-block social-links">
+            <table>
+                <tr>
+                    
+                    
+                    <td>
+                        <a href="https://github.com/mickolechou" target="_blank" title="github" class=tooltip>
+                            <i class="fa fa-github"></i>
+                        </a>
+                    </td>
+                    
+                    <td>
+                        <a href="/" target="_blank" title="weibo" class=tooltip>
+                            <i class="fa fa-weibo"></i>
+                        </a>
+                    </td>
+                    
+                    <td>
+                        <a href="/" target="_blank" title="weixin" class=tooltip>
+                            <i class="fa fa-weixin"></i>
+                        </a>
+                    </td>
+                    
+                    <td>
+                        <a href="https://minibox.coding.me/atom.xml" target="_blank" title="rss" class=tooltip>
+                            <i class="fa fa-rss"></i>
+                        </a>
+                    </td>
+                    
+                </tr>
+            </table>
+        </div>
+        
+    </div>
+</aside>
+
+            
+            <section id="main"><article id="post-Redis Sentinel高可用集群搭建及Spring集成" class="article article-type-post" itemscope itemprop="blogPost">
+    <div class="article-inner">
+        
+        
+            <header class="article-header">
+                
+    
+        <h1 class="article-title" itemprop="name">
+            Redis Sentinel高可用集群搭建及Spring集成
+        </h1>
+    
+
+                
+                    <div class="article-meta">
+                        
+    <div class="article-date">
+        <i class="fa fa-calendar"></i>
+        <a href="/2016/03/23/Redis Sentinel高可用集群搭建及Spring集成/">
+            <time datetime="2016-03-23T09:42:36.000Z" itemprop="datePublished">2016-03-23</time>
+        </a>
+    </div>
+
+
+                        
+    <div class="article-category">
+    	<i class="fa fa-folder"></i>
+        <a class="article-category-link" href="/categories/redis/">redis</a>
+    </div>
+
+                        
+    <div class="article-tag">
+        <i class="fa fa-tag"></i>
+        <a class="tag-link" href="/tags/redis/">redis</a>, <a class="tag-link" href="/tags/sentinel/">sentinel</a>, <a class="tag-link" href="/tags/spring-data-redis/">spring-data-redis</a>
+    </div>
+
+                    </div>
+                
+            </header>
+        
+        
+        <div class="article-entry" itemprop="articleBody">
+        
+            
+                <div id="toc" class="toc-article">
+                <strong class="toc-title">文章目录</strong>
+                    <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#一、Sentinel介绍"><span class="toc-number">1.</span> <span class="toc-text">一、Sentinel介绍</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#二、Sentinel的主从原理"><span class="toc-number">2.</span> <span class="toc-text">二、Sentinel的主从原理</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#三、Redis-Sentinel高可用集群搭建"><span class="toc-number">3.</span> <span class="toc-text">三、Redis Sentinel高可用集群搭建</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#redis安装"><span class="toc-number">3.1.</span> <span class="toc-text">redis安装</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#redis-sentinel集群搭建"><span class="toc-number">3.1.1.</span> <span class="toc-text">redis sentinel集群搭建</span></a></li></ol></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#四、Jedis-Sentinel教程"><span class="toc-number">4.</span> <span class="toc-text">四、Jedis Sentinel教程</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#常见问题"><span class="toc-number">5.</span> <span class="toc-text">常见问题</span></a></li></ol>
+                </div>
+            
+            <blockquote>
+<p>本文将介绍如何通过Sentinel实现Redis集群(主从)的高可用方案，该方案需要使用Jedis2.2.2及以上版本（强制），Redis2.8及以上版本(可选，Sentinel最早出现在Redis2.4中，Redis2.8中Sentinel更加稳定)，同时将redis与spring-date-redis集成。</p>
+</blockquote>
+<h2 id="一、Sentinel介绍"><a href="#一、Sentinel介绍" class="headerlink" title="一、Sentinel介绍"></a>一、Sentinel介绍</h2><p>Sentinel是Redis的高可用性（HA）解决方案，由一个或多个Sentinel实例组成的Sentinel系统可以监视任意多个主服务器，以及这些主服务器属下的所有从服务器，并在被监视的主服务器故障时，自动将下线主服务器属下的某个从服务器升级为新的主服务器，然后由新的主服务器代替已下线的主服务器继续处理命令请求。Redis提供的sentinel（哨兵）机制，通过sentinel模式启动redis后，自动监控master/slave的运行状态，<strong>基本原理是：心跳机制+投票裁决</strong><br><a id="more"></a></p>
+<ul>
+<li>监控（Monitoring）： Sentinel 会不断地检查你的主服务器和从服务器是否运作正常。</li>
+<li>提醒（Notification）： 当被监控的某个 Redis 服务器出现问题时， Sentinel 可以通过 API向管理员或者其他应用程序发送通知。</li>
+<li>自动故障迁移（Automatic failover）： 当一个主服务器不能正常工作时， Sentinel 会开始一次自动故障迁移操作， 它会将失效主服务器的其中一个从服务器选举出来，升级为新的主服务器， 并让失效主服务器的其他从服务器改为复制新的主服务器； 当客户端试图连接失效的主服务器时， 集群也会向客户端返回新主服务器的地址， 使得集群可以使用新主服务器代替失效服务器。</li>
+</ul>
+<h2 id="二、Sentinel的主从原理"><a href="#二、Sentinel的主从原理" class="headerlink" title="二、Sentinel的主从原理"></a>二、Sentinel的主从原理</h2><p>以下为Sentinel架构以及主从切换图：</p>
+<p><img src="http://on8y4ksa8.bkt.clouddn.com/17-3-23/1417705-file_1490244393480_232c.png" alt=""></p>
+<p><img src="http://on8y4ksa8.bkt.clouddn.com/17-3-23/63944901-file_1490244479018_b31b.png" alt=""></p>
+<p><img src="http://on8y4ksa8.bkt.clouddn.com/17-3-23/51631728-file_1490244543432_6e50.png" alt=""></p>
+<p><img src="http://on8y4ksa8.bkt.clouddn.com/17-3-23/71163166-file_1490244585501_5e72.png" alt=""></p>
+<p>Jedis2.2.2之前版本，因为主从实例地址(IP PORT)是不同的，当故障发生进行主从切换后，应用程序无法知道新地址，故在Jedis2.2.2中新增了对Sentinel的支持，应用通过redis.clients.jedis.JedisSentinelPool.getResource()取得的Jedis实例会及时更新到新的主实例地址。</p>
+<h2 id="三、Redis-Sentinel高可用集群搭建"><a href="#三、Redis-Sentinel高可用集群搭建" class="headerlink" title="三、Redis Sentinel高可用集群搭建"></a>三、Redis Sentinel高可用集群搭建</h2><p>首先稍微介绍下如何在linux上安装redis</p>
+<h3 id="redis安装"><a href="#redis安装" class="headerlink" title="redis安装"></a>redis安装</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div></pre></td><td class="code"><pre><div class="line">$ wget http://download.redis.io/releases/redis-3.2.8.tar.gz</div><div class="line">$ tar xzf redis-3.2.8.tar.gz</div><div class="line">$ <span class="built_in">cd</span> redis-3.2.8</div><div class="line">$ make</div></pre></td></tr></table></figure>
+<p>测试：<br>首先启动redis服务<br><figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">fish@<span class="built_in">test</span>-vm:~/server/redis-3.2.8$ src/redis-server</div></pre></td></tr></table></figure></p>
+<p>然后打开一个新的命令窗口，启动redis client端进行测试。<br><figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div></pre></td><td class="code"><pre><div class="line">fish@<span class="built_in">test</span>-vm:~/server/redis-3.2.8$ src/redis-cli </div><div class="line">127.0.0.1:6379&gt; <span class="built_in">set</span> name fish</div><div class="line">OK</div><div class="line">127.0.0.1:6379&gt; get name</div><div class="line"><span class="string">"fish"</span></div></pre></td></tr></table></figure></p>
+<h4 id="redis-sentinel集群搭建"><a href="#redis-sentinel集群搭建" class="headerlink" title="redis sentinel集群搭建"></a>redis sentinel集群搭建</h4><p>硬件条件有限，这里我将采用伪分布式进行搭建，所有节点都在同一台虚拟机，通过不同端口区分：2个哨兵，1个主redis，2个从redis<br>首先在redis目录创建conf目录，然后在其中添加一下配置文件，配置文件如下：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div></pre></td><td class="code"><pre><div class="line">fish@<span class="built_in">test</span>-vm:~/server/redis-3.2.8/conf$ ls -1</div><div class="line">redis-master-6379.conf</div><div class="line">redis-slave-6380.conf</div><div class="line">redis-slave-6381.conf</div><div class="line">sentinel-63791.conf</div><div class="line">sentinel-63792.conf</div></pre></td></tr></table></figure>
+<p>redis节点配置可通过复制redis目录下的redis.conf默认配置进行相应修改，sentinel节点的配置文件则可通过复制redis目录下的sentinel.conf配置内容进行相应修改。<br>sentinel_63791.conf 配置：<br><figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div></pre></td><td class="code"><pre><div class="line">port 63791</div><div class="line">daemonize yes</div><div class="line">logfile <span class="string">"/var/log/sentinel_63791.log"</span></div><div class="line"><span class="comment">#master-1</span></div><div class="line">sentinel monitor master-1 192.168.78.99 6379 2</div><div class="line">sentinel down-after-milliseconds master-1 5000</div><div class="line">sentinel failover-timeout master-1 18000</div><div class="line">sentinel auth-pass master-1 yingjun</div><div class="line">sentinel parallel-syncs master-1 1</div></pre></td></tr></table></figure></p>
+<p>sentinel_63792.conf 配置：<br><figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div></pre></td><td class="code"><pre><div class="line">port 63792</div><div class="line">daemonize yes</div><div class="line">logfile <span class="string">"/var/log/sentinel_63792.log"</span></div><div class="line"><span class="comment">#master-1</span></div><div class="line">sentinel monitor master-1 192.168.78.99 6379 2</div><div class="line">sentinel down-after-milliseconds master-1 5000</div><div class="line">sentinel failover-timeout master-1 18000</div><div class="line">sentinel auth-pass master-1 yingjun</div><div class="line">sentinel parallel-syncs master-1 1</div></pre></td></tr></table></figure></p>
+<p>redis_master_6379.conf 配置：<br>在原配置文件中作如下修改：<br><figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div></pre></td><td class="code"><pre><div class="line">port 6379</div><div class="line">daemonize yes</div><div class="line">requirepass yingjun</div><div class="line">masterauth yingjun</div></pre></td></tr></table></figure></p>
+<p>redis_slave_6380.conf 配置：<br>在原配置文件中作如下修改：<br><figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div></pre></td><td class="code"><pre><div class="line">port 6380</div><div class="line">daemonize yes</div><div class="line">requirepass yingjun</div><div class="line">slaveof 192.168.78.99 6379</div><div class="line">masterauth yingjun</div></pre></td></tr></table></figure></p>
+<p>redis_slave_6381.conf 配置：<br>在原配置文件中作如下修改：<br><figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div></pre></td><td class="code"><pre><div class="line">port 6381</div><div class="line">daemonize yes</div><div class="line">requirepass yingjun</div><div class="line">slaveof 192.168.78.99 6379</div><div class="line">masterauth yingjun</div></pre></td></tr></table></figure></p>
+<p>按如下顺序依次启动服务：<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div></pre></td><td class="code"><pre><div class="line">./redis-server ../conf/redis_master_6379.conf</div><div class="line">./redis-server ../conf/redis_slave_6381.conf    </div><div class="line">./redis-server ../conf/redis_slave_6382.conf    </div><div class="line">./redis-sentinel ../conf/sentinel_63791.conf</div><div class="line">./redis-sentinel ../conf/sentinel_63792.conf</div></pre></td></tr></table></figure></p>
+<p>查看进程是否都已经启动：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div></pre></td><td class="code"><pre><div class="line">fish@<span class="built_in">test</span>-vm:~$ ps -ef|grep redis</div><div class="line">fish     30233  2408  0 15:23 ?        00:00:03 src/redis-server *:6379</div><div class="line">fish     30257  2408  0 15:24 ?        00:00:03 src/redis-server *:6380</div><div class="line">fish     30270  2408  0 15:24 ?        00:00:03 src/redis-server *:6381</div><div class="line">fish     30503  2408  0 16:06 ?        00:00:00 src/redis-sentinel *:63791 [sentinel]</div><div class="line">fish     30514  2408  0 16:06 ?        00:00:00 src/redis-sentinel *:63792 [sentinel]</div><div class="line">fish     30549  8143  0 16:09 pts/18   00:00:00 grep --color=auto redis</div></pre></td></tr></table></figure>
+<p>查看master的状态：<br><figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div></pre></td><td class="code"><pre><div class="line">fish@<span class="built_in">test</span>-vm:~/server/redis-3.2.8$ src/redis-cli -h 10.14.137.85 -p 6379</div><div class="line">10.14.137.85:6379&gt; <span class="built_in">set</span> name tom</div><div class="line">(error) NOAUTH Authentication required.</div><div class="line">10.14.137.85:6379&gt; auth fish@123</div><div class="line">OK</div><div class="line">10.14.137.85:6379&gt; info replication</div><div class="line"><span class="comment"># Replication</span></div><div class="line">role:master</div><div class="line">connected_slaves:2</div><div class="line">slave0:ip=10.14.137.85,port=6380,state=online,offset=66732,lag=1</div><div class="line">slave1:ip=10.14.137.85,port=6381,state=online,offset=66732,lag=1</div><div class="line">master_repl_offset:66871</div><div class="line">repl_backlog_active:1</div><div class="line">repl_backlog_size:1048576</div><div class="line">repl_backlog_first_byte_offset:2</div><div class="line">repl_backlog_histlen:66870</div><div class="line">10.14.137.85:6379&gt;</div></pre></td></tr></table></figure></p>
+<p>可以看到role为master，同时显示了旗下有两个slave<br>通过src/redis-cli -h 10.14.137.85 -p 6379命令登录master客户端，如何redis设置了password，此时可以进入，但是不能进行操作，需通过autho password命令授权后，在可进行其他操作。也可登录时加上-a password参数指定密码。</p>
+<p>查看slave的状态：<br><figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div></pre></td><td class="code"><pre><div class="line">fish@<span class="built_in">test</span>-vm:~/server/redis-3.2.8$ src/redis-cli -h 10.14.137.85 -p 6380</div><div class="line">10.14.137.85:6380&gt; get name</div><div class="line">(error) NOAUTH Authentication required.</div><div class="line">10.14.137.85:6380&gt; auth fish@123</div><div class="line">OK</div><div class="line">10.14.137.85:6380&gt; info replication</div><div class="line"><span class="comment"># Replication</span></div><div class="line">role:slave</div><div class="line">master_host:10.14.137.85</div><div class="line">master_port:6379</div><div class="line">master_link_status:up</div><div class="line">master_last_io_seconds_ago:0</div><div class="line">master_sync_in_progress:0</div><div class="line">slave_repl_offset:84567</div><div class="line">slave_priority:100</div><div class="line">slave_read_only:1</div><div class="line">connected_slaves:0</div><div class="line">master_repl_offset:0</div><div class="line">repl_backlog_active:0</div><div class="line">repl_backlog_size:1048576</div><div class="line">repl_backlog_first_byte_offset:0</div><div class="line">repl_backlog_histlen:0</div><div class="line">10.14.137.85:6380&gt;</div></pre></td></tr></table></figure></p>
+<p>可以看到role为slave，只读不能写</p>
+<p>查看sentinel的状态：<br><figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div></pre></td><td class="code"><pre><div class="line">fish@<span class="built_in">test</span>-vm:~/server/redis-3.2.8$ src/redis-cli -h 10.14.137.85 -p 63791</div><div class="line">10.14.137.85:63791&gt; info sentinel</div><div class="line">DENIED Redis is running <span class="keyword">in</span> protected mode because protected mode is enabled, no <span class="built_in">bind</span> address was specified, no authentication password is requested to clients. In this mode connections are only accepted from the loopback interface. If you want to connect from external computers to Redis you may adopt one of the following solutions: 1) Just <span class="built_in">disable</span> protected mode sending the <span class="built_in">command</span> <span class="string">'CONFIG SET protected-mode no'</span> from the loopback interface by connecting to Redis from the same host the server is running, however MAKE SURE Redis is not publicly accessible from internet <span class="keyword">if</span> you <span class="keyword">do</span> so. Use CONFIG REWRITE to make this change permanent. 2) Alternatively you can just <span class="built_in">disable</span> the protected mode by editing the Redis configuration file, and setting the protected mode option to <span class="string">'no'</span>, and <span class="keyword">then</span> restarting the server. 3) If you started the server manually just <span class="keyword">for</span> testing, restart it with the <span class="string">'--protected-mode no'</span> option. 4) Setup a <span class="built_in">bind</span> address or an authentication password. NOTE: You only need to <span class="keyword">do</span> one of the above things <span class="keyword">in</span> order <span class="keyword">for</span> the server to start accepting connections from the outside.</div><div class="line">10.14.137.85:63791&gt;</div></pre></td></tr></table></figure></p>
+<p>从以上输出可以发现，竟然出错了，仔细查看输出信息，说是redis运行在保护模式<br>protected-mode 是为了禁止公网访问redis cache，加强redis安全的。它启用的条件，有两个：</p>
+<ul>
+<li>没有bind IP</li>
+<li>没有设置访问密码</li>
+</ul>
+<p>如果启用了，则只能够通过lookback ip（127.0.0.1）访问Redis cache，如果从外网访问，则会返回相应的错误信息，就是上图中的信息。<br>因此在新的版本中，应该配置绑定IP和访问密码，这样的话才不会报错误<br>这里master及两台slave redis由于设置了pass，所以不会提示，但sentinel既没设置pass也没绑定ip，所以连接sentinel时出现以上提示，解决方案：</p>
+<ol>
+<li>更改配置文件，将protected-mode设置为no</li>
+<li>通过命令关闭保护模式：CONFIG SET protected-mode no</li>
+<li>重启服务，启动时加上参数：–protected-mode no</li>
+<li>绑定ip或设置pass</li>
+</ol>
+<p>采取其中一种即可。<br>ok后，查看sentinel状态：<br><figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div></pre></td><td class="code"><pre><div class="line">fish@<span class="built_in">test</span>-vm:~/server/redis-3.2.8$ src/redis-cli -h 10.14.137.85 -p 63791</div><div class="line">10.14.137.85:63791&gt; info sentinel</div><div class="line"><span class="comment"># Sentinel</span></div><div class="line">sentinel_masters:1</div><div class="line">sentinel_tilt:0</div><div class="line">sentinel_running_scripts:0</div><div class="line">sentinel_scripts_queue_length:0</div><div class="line">sentinel_simulate_failure_flags:0</div><div class="line">master0:name=master-1,status=ok,address=10.14.137.85:6379,slaves=2,sentinels=2</div><div class="line">10.14.137.85:63791&gt;</div></pre></td></tr></table></figure></p>
+<p>接下来验证redis sentinel的主从切换：</p>
+<p>首先关闭主redis（6379）服务（shutdown）。<br>查看哨兵，发现端口号为6380的从服务变成了主服务,sentinel自动完成了故障切换。<br><figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div></pre></td><td class="code"><pre><div class="line">fish@<span class="built_in">test</span>-vm:~/server/redis-3.2.8$ <span class="built_in">kill</span> -9 31013</div><div class="line">fish@<span class="built_in">test</span>-vm:~/server/redis-3.2.8$ src/redis-cli -h 10.14.137.85 -p 63791</div><div class="line">10.14.137.85:63791&gt; info sentinel</div><div class="line"><span class="comment"># Sentinel</span></div><div class="line">sentinel_masters:1</div><div class="line">sentinel_tilt:0</div><div class="line">sentinel_running_scripts:0</div><div class="line">sentinel_scripts_queue_length:0</div><div class="line">sentinel_simulate_failure_flags:0</div><div class="line">master0:name=master-1,status=ok,address=10.14.137.85:6380,slaves=2,sentinels=2</div><div class="line">10.14.137.85:63791&gt;</div></pre></td></tr></table></figure></p>
+<p>可以看到哨兵所监听的master address变成了address=10.14.137.85:6380</p>
+<p>启动刚才被shutdown的6379服务并查看，发现它变成了从服务。</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div></pre></td><td class="code"><pre><div class="line">fish@<span class="built_in">test</span>-vm:~/server/redis-3.2.8$ src/redis-cli -h 10.14.137.85 -p 6380</div><div class="line">10.14.137.85:6380&gt; info replication</div><div class="line">NOAUTH Authentication required.</div><div class="line">10.14.137.85:6380&gt; auth fish@123</div><div class="line">OK</div><div class="line">10.14.137.85:6380&gt; info replication</div><div class="line"><span class="comment"># Replication</span></div><div class="line">role:master</div><div class="line">connected_slaves:1</div><div class="line">slave0:ip=10.14.137.85,port=6381,state=online,offset=22085,lag=0</div><div class="line">master_repl_offset:22085</div><div class="line">repl_backlog_active:1</div><div class="line">repl_backlog_size:1048576</div><div class="line">repl_backlog_first_byte_offset:2</div><div class="line">repl_backlog_histlen:22084</div><div class="line">10.14.137.85:6380&gt;</div></pre></td></tr></table></figure>
+<p>可见，之前的slave变成了master<br>重新启动之前的master：<br><figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div></pre></td><td class="code"><pre><div class="line">fish@<span class="built_in">test</span>-vm:~/server/redis-3.2.8$ src/redis-server conf/redis-master-6379.conf </div><div class="line">fish@<span class="built_in">test</span>-vm:~/server/redis-3.2.8$ src/redis-cli -h 10.14.137.85 -p 6379 <span class="_">-a</span> fish@123</div><div class="line">10.14.137.85:6379&gt; info replication</div><div class="line"><span class="comment"># Replication</span></div><div class="line">role:slave</div><div class="line">master_host:10.14.137.85</div><div class="line">master_port:6380</div><div class="line">master_link_status:up</div><div class="line">master_last_io_seconds_ago:1</div><div class="line">master_sync_in_progress:0</div><div class="line">slave_repl_offset:46407</div><div class="line">slave_priority:100</div><div class="line">slave_read_only:1</div><div class="line">connected_slaves:0</div><div class="line">master_repl_offset:0</div><div class="line">repl_backlog_active:0</div><div class="line">repl_backlog_size:1048576</div><div class="line">repl_backlog_first_byte_offset:0</div><div class="line">repl_backlog_histlen:0</div><div class="line">10.14.137.85:6379&gt;</div></pre></td></tr></table></figure></p>
+<p>发现之前的master下线重启之后role变为了slave。</p>
+<h2 id="四、Jedis-Sentinel教程"><a href="#四、Jedis-Sentinel教程" class="headerlink" title="四、Jedis Sentinel教程"></a>四、Jedis Sentinel教程</h2><p>Maven依赖：<br><figure class="highlight xml"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div></pre></td><td class="code"><pre><div class="line"><span class="tag">&lt;<span class="name">dependency</span>&gt;</span></div><div class="line">    <span class="tag">&lt;<span class="name">groupId</span>&gt;</span>redis.clients<span class="tag">&lt;/<span class="name">groupId</span>&gt;</span></div><div class="line">    <span class="tag">&lt;<span class="name">artifactId</span>&gt;</span>jedis<span class="tag">&lt;/<span class="name">artifactId</span>&gt;</span></div><div class="line">    <span class="tag">&lt;<span class="name">version</span>&gt;</span>2.8.0<span class="tag">&lt;/<span class="name">version</span>&gt;</span></div><div class="line"><span class="tag">&lt;/<span class="name">dependency</span>&gt;</span></div><div class="line"><span class="comment">&lt;!-- spring-redis --&gt;</span></div><div class="line"><span class="tag">&lt;<span class="name">dependency</span>&gt;</span></div><div class="line">    <span class="tag">&lt;<span class="name">groupId</span>&gt;</span>org.springframework.data<span class="tag">&lt;/<span class="name">groupId</span>&gt;</span></div><div class="line">    <span class="tag">&lt;<span class="name">artifactId</span>&gt;</span>spring-data-redis<span class="tag">&lt;/<span class="name">artifactId</span>&gt;</span></div><div class="line">    <span class="tag">&lt;<span class="name">version</span>&gt;</span>1.6.4.RELEASE<span class="tag">&lt;/<span class="name">version</span>&gt;</span></div><div class="line"><span class="tag">&lt;/<span class="name">dependency</span>&gt;</span></div></pre></td></tr></table></figure></p>
+<p>redis的配置文件：<br><figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div></pre></td><td class="code"><pre><div class="line"><span class="comment">#redis config</span></div><div class="line">redis.pass=yingjun</div><div class="line">redis.pool.maxTotal=105</div><div class="line">redis.pool.maxIdle=10</div><div class="line">redis.pool.maxWaitMillis=60000</div><div class="line">redis.pool.testOnBorrow=<span class="literal">true</span></div><div class="line"></div><div class="line">sentinel1.ip=192.168.78.99</div><div class="line">sentinel1.port=63791</div><div class="line"></div><div class="line">sentinel2.ip=192.168.78.99</div><div class="line">sentinel2.port=63792</div></pre></td></tr></table></figure></p>
+<p>Spring的配置文件：<br><figure class="highlight xml"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div><div class="line">29</div><div class="line">30</div><div class="line">31</div><div class="line">32</div><div class="line">33</div><div class="line">34</div><div class="line">35</div><div class="line">36</div><div class="line">37</div><div class="line">38</div><div class="line">39</div><div class="line">40</div><div class="line">41</div><div class="line">42</div><div class="line">43</div><div class="line">44</div><div class="line">45</div><div class="line">46</div><div class="line">47</div><div class="line">48</div><div class="line">49</div><div class="line">50</div><div class="line">51</div><div class="line">52</div><div class="line">53</div><div class="line">54</div><div class="line">55</div><div class="line">56</div><div class="line">57</div><div class="line">58</div><div class="line">59</div><div class="line">60</div><div class="line">61</div><div class="line">62</div><div class="line">63</div><div class="line">64</div><div class="line">65</div></pre></td><td class="code"><pre><div class="line"><span class="comment">&lt;!-- Redis 配置 --&gt;</span></div><div class="line">    <span class="comment">&lt;!--//jedis 连接池配置--&gt;</span></div><div class="line">    <span class="tag">&lt;<span class="name">bean</span> <span class="attr">id</span>=<span class="string">"jedisPoolConfig"</span> <span class="attr">class</span>=<span class="string">"redis.clients.jedis.JedisPoolConfig"</span>&gt;</span></div><div class="line">        <span class="tag">&lt;<span class="name">property</span> <span class="attr">name</span>=<span class="string">"maxTotal"</span> <span class="attr">value</span>=<span class="string">"$&#123;redis.pool.maxTotal&#125;"</span>/&gt;</span></div><div class="line">        <span class="tag">&lt;<span class="name">property</span> <span class="attr">name</span>=<span class="string">"maxIdle"</span> <span class="attr">value</span>=<span class="string">"$&#123;redis.pool.maxIdle&#125;"</span>/&gt;</span></div><div class="line">        <span class="tag">&lt;<span class="name">property</span> <span class="attr">name</span>=<span class="string">"maxWaitMillis"</span> <span class="attr">value</span>=<span class="string">"$&#123;redis.pool.maxWaitMillis&#125;"</span>/&gt;</span></div><div class="line">        <span class="tag">&lt;<span class="name">property</span> <span class="attr">name</span>=<span class="string">"testOnBorrow"</span> <span class="attr">value</span>=<span class="string">"$&#123;redis.pool.testOnBorrow&#125;"</span>/&gt;</span></div><div class="line">    <span class="tag">&lt;/<span class="name">bean</span>&gt;</span></div><div class="line"></div><div class="line">    <span class="comment">&lt;!--redis sentinel集群 节点信息配置--&gt;</span></div><div class="line">    <span class="tag">&lt;<span class="name">bean</span> <span class="attr">id</span>=<span class="string">"sentinelConfiguration"</span> <span class="attr">class</span>=<span class="string">"org.springframework.data.redis.connection.RedisSentinelConfiguration"</span>&gt;</span></div><div class="line">        <span class="tag">&lt;<span class="name">property</span> <span class="attr">name</span>=<span class="string">"master"</span>&gt;</span></div><div class="line">            <span class="tag">&lt;<span class="name">bean</span> <span class="attr">class</span>=<span class="string">"org.springframework.data.redis.connection.RedisNode"</span>&gt;</span></div><div class="line">                <span class="tag">&lt;<span class="name">property</span> <span class="attr">name</span>=<span class="string">"name"</span> <span class="attr">value</span>=<span class="string">"master-1"</span>/&gt;</span></div><div class="line">            <span class="tag">&lt;/<span class="name">bean</span>&gt;</span></div><div class="line">        <span class="tag">&lt;/<span class="name">property</span>&gt;</span></div><div class="line"></div><div class="line">        <span class="tag">&lt;<span class="name">property</span> <span class="attr">name</span>=<span class="string">"sentinels"</span>&gt;</span></div><div class="line">            <span class="tag">&lt;<span class="name">set</span>&gt;</span></div><div class="line">                <span class="tag">&lt;<span class="name">bean</span> <span class="attr">class</span>=<span class="string">"org.springframework.data.redis.connection.RedisNode"</span>&gt;</span></div><div class="line">                    <span class="tag">&lt;<span class="name">constructor-arg</span> <span class="attr">name</span>=<span class="string">"host"</span> <span class="attr">value</span>=<span class="string">"$&#123;sentinel1.ip&#125;"</span>&gt;</span><span class="tag">&lt;/<span class="name">constructor-arg</span>&gt;</span></div><div class="line">                    <span class="tag">&lt;<span class="name">constructor-arg</span> <span class="attr">name</span>=<span class="string">"port"</span> <span class="attr">value</span>=<span class="string">"$&#123;sentinel1.port&#125;"</span>&gt;</span><span class="tag">&lt;/<span class="name">constructor-arg</span>&gt;</span></div><div class="line">                <span class="tag">&lt;/<span class="name">bean</span>&gt;</span></div><div class="line">                <span class="tag">&lt;<span class="name">bean</span> <span class="attr">class</span>=<span class="string">"org.springframework.data.redis.connection.RedisNode"</span>&gt;</span></div><div class="line">                    <span class="tag">&lt;<span class="name">constructor-arg</span> <span class="attr">name</span>=<span class="string">"host"</span> <span class="attr">value</span>=<span class="string">"$&#123;sentinel2.ip&#125;"</span>&gt;</span><span class="tag">&lt;/<span class="name">constructor-arg</span>&gt;</span></div><div class="line">                    <span class="tag">&lt;<span class="name">constructor-arg</span> <span class="attr">name</span>=<span class="string">"port"</span> <span class="attr">value</span>=<span class="string">"$&#123;sentinel2.port&#125;"</span>&gt;</span><span class="tag">&lt;/<span class="name">constructor-arg</span>&gt;</span></div><div class="line">                <span class="tag">&lt;/<span class="name">bean</span>&gt;</span></div><div class="line">            <span class="tag">&lt;/<span class="name">set</span>&gt;</span></div><div class="line">        <span class="tag">&lt;/<span class="name">property</span>&gt;</span></div><div class="line">    <span class="tag">&lt;/<span class="name">bean</span>&gt;</span></div><div class="line"></div><div class="line">    <span class="comment">&lt;!-- Jedis ConnectionFactory连接配置 --&gt;</span></div><div class="line">    <span class="tag">&lt;<span class="name">bean</span> <span class="attr">id</span>=<span class="string">"jedisConnectionFactory"</span> <span class="attr">class</span>=<span class="string">"org.springframework.data.redis.connection.jedis.JedisConnectionFactory"</span>&gt;</span></div><div class="line">        <span class="tag">&lt;<span class="name">property</span> <span class="attr">name</span>=<span class="string">"password"</span> <span class="attr">value</span>=<span class="string">"$&#123;redis.pass&#125;"</span>/&gt;</span></div><div class="line">        <span class="tag">&lt;<span class="name">property</span> <span class="attr">name</span>=<span class="string">"poolConfig"</span>&gt;</span></div><div class="line">            <span class="tag">&lt;<span class="name">ref</span> <span class="attr">bean</span>=<span class="string">"jedisPoolConfig"</span>/&gt;</span></div><div class="line">        <span class="tag">&lt;/<span class="name">property</span>&gt;</span></div><div class="line">        <span class="tag">&lt;<span class="name">constructor-arg</span> <span class="attr">name</span>=<span class="string">"sentinelConfig"</span> <span class="attr">ref</span>=<span class="string">"sentinelConfiguration"</span>/&gt;</span></div><div class="line">    <span class="tag">&lt;/<span class="name">bean</span>&gt;</span></div><div class="line"></div><div class="line">    <span class="comment">&lt;!-- redisTemplate配置，redisTemplate是对Jedis的对redis操作的扩展，有更多的操作，封装使操作更便捷 --&gt;</span></div><div class="line">    <span class="comment">&lt;!--通用redisTemplate 指定序列化器--&gt;</span></div><div class="line">    <span class="tag">&lt;<span class="name">bean</span> <span class="attr">id</span>=<span class="string">"redisTemplate"</span> <span class="attr">class</span>=<span class="string">"org.springframework.data.redis.core.RedisTemplate"</span>&gt;</span></div><div class="line">        <span class="tag">&lt;<span class="name">property</span> <span class="attr">name</span>=<span class="string">"connectionFactory"</span> <span class="attr">ref</span>=<span class="string">"jedisConnectionFactory"</span>/&gt;</span></div><div class="line">        <span class="tag">&lt;<span class="name">property</span> <span class="attr">name</span>=<span class="string">"keySerializer"</span>&gt;</span></div><div class="line">            <span class="tag">&lt;<span class="name">bean</span> <span class="attr">class</span>=<span class="string">"org.springframework.data.redis.serializer.StringRedisSerializer"</span>/&gt;</span></div><div class="line">        <span class="tag">&lt;/<span class="name">property</span>&gt;</span></div><div class="line">        <span class="tag">&lt;<span class="name">property</span> <span class="attr">name</span>=<span class="string">"hashKeySerializer"</span>&gt;</span></div><div class="line">            <span class="tag">&lt;<span class="name">bean</span> <span class="attr">class</span>=<span class="string">"org.springframework.data.redis.serializer.StringRedisSerializer"</span>/&gt;</span></div><div class="line">        <span class="tag">&lt;/<span class="name">property</span>&gt;</span></div><div class="line">        <span class="comment">&lt;!--如果value采用jdk自带序列化处理器，则需要序列号的对象必须实现Serializable--&gt;</span></div><div class="line">        <span class="tag">&lt;<span class="name">property</span> <span class="attr">name</span>=<span class="string">"valueSerializer"</span>&gt;</span></div><div class="line">            <span class="tag">&lt;<span class="name">bean</span> <span class="attr">class</span>=<span class="string">"org.springframework.data.redis.serializer.JdkSerializationRedisSerializer"</span>/&gt;</span></div><div class="line">        <span class="tag">&lt;/<span class="name">property</span>&gt;</span></div><div class="line">        <span class="tag">&lt;<span class="name">property</span> <span class="attr">name</span>=<span class="string">"hashValueSerializer"</span>&gt;</span></div><div class="line">            <span class="tag">&lt;<span class="name">bean</span> <span class="attr">class</span>=<span class="string">"org.springframework.data.redis.serializer.JdkSerializationRedisSerializer"</span>/&gt;</span></div><div class="line">        <span class="tag">&lt;/<span class="name">property</span>&gt;</span></div><div class="line">    <span class="tag">&lt;/<span class="name">bean</span>&gt;</span></div><div class="line"></div><div class="line">    <span class="comment">&lt;!--专门处理String类型的key-value--&gt;</span></div><div class="line">    <span class="tag">&lt;<span class="name">bean</span> <span class="attr">id</span>=<span class="string">"stringRedisTemplate"</span> <span class="attr">class</span>=<span class="string">"org.springframework.data.redis.core.StringRedisTemplate"</span>&gt;</span></div><div class="line">        <span class="tag">&lt;<span class="name">property</span> <span class="attr">name</span>=<span class="string">"connectionFactory"</span> <span class="attr">ref</span>=<span class="string">"jedisConnectionFactory"</span>/&gt;</span></div><div class="line">    <span class="tag">&lt;/<span class="name">bean</span>&gt;</span></div><div class="line"></div><div class="line"><span class="tag">&lt;/<span class="name">beans</span>&gt;</span></div></pre></td></tr></table></figure></p>
+<p>代码中直接用redisTemplate调用：<br><figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div></pre></td><td class="code"><pre><div class="line"></div><div class="line"><span class="meta">@Override</span></div><div class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">boolean</span> <span class="title">add</span><span class="params">(<span class="keyword">final</span> KeyToken tkey)</span> </span>&#123;</div><div class="line">    <span class="keyword">boolean</span> result = redisTemplate.execute(<span class="keyword">new</span> RedisCallback&lt;Boolean&gt;() &#123;</div><div class="line"></div><div class="line">        <span class="meta">@Override</span></div><div class="line">        <span class="function"><span class="keyword">public</span> Boolean <span class="title">doInRedis</span><span class="params">(RedisConnection connection)</span> <span class="keyword">throws</span> DataAccessException </span>&#123;</div><div class="line">            RedisSerializer&lt;String&gt; serializer = getRedisSerializer();</div><div class="line">            <span class="keyword">byte</span>[] key = serializer.serialize(tkey.getIndex());</div><div class="line">            <span class="keyword">byte</span>[] name = serializer.serialize(tkey.getExpire_time());</div><div class="line">            <span class="keyword">return</span> connection.setNX(key, name);</div><div class="line">        &#125;</div><div class="line"></div><div class="line">    &#125;);</div><div class="line">    <span class="keyword">return</span> result;</div><div class="line">&#125;</div></pre></td></tr></table></figure></p>
+<p>以下是测试代码：<br><figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div><div class="line">29</div><div class="line">30</div><div class="line">31</div><div class="line">32</div><div class="line">33</div><div class="line">34</div><div class="line">35</div><div class="line">36</div><div class="line">37</div><div class="line">38</div><div class="line">39</div><div class="line">40</div><div class="line">41</div><div class="line">42</div><div class="line">43</div><div class="line">44</div><div class="line">45</div><div class="line">46</div><div class="line">47</div><div class="line">48</div><div class="line">49</div><div class="line">50</div><div class="line">51</div><div class="line">52</div><div class="line">53</div><div class="line">54</div><div class="line">55</div><div class="line">56</div><div class="line">57</div><div class="line">58</div><div class="line">59</div><div class="line">60</div><div class="line">61</div><div class="line">62</div><div class="line">63</div><div class="line">64</div><div class="line">65</div><div class="line">66</div><div class="line">67</div><div class="line">68</div><div class="line">69</div><div class="line">70</div><div class="line">71</div><div class="line">72</div><div class="line">73</div><div class="line">74</div><div class="line">75</div><div class="line">76</div><div class="line">77</div><div class="line">78</div><div class="line">79</div><div class="line">80</div><div class="line">81</div><div class="line">82</div><div class="line">83</div><div class="line">84</div><div class="line">85</div><div class="line">86</div><div class="line">87</div><div class="line">88</div><div class="line">89</div><div class="line">90</div><div class="line">91</div><div class="line">92</div><div class="line">93</div><div class="line">94</div><div class="line">95</div><div class="line">96</div><div class="line">97</div><div class="line">98</div><div class="line">99</div><div class="line">100</div><div class="line">101</div><div class="line">102</div><div class="line">103</div><div class="line">104</div><div class="line">105</div><div class="line">106</div><div class="line">107</div><div class="line">108</div><div class="line">109</div><div class="line">110</div><div class="line">111</div><div class="line">112</div><div class="line">113</div><div class="line">114</div><div class="line">115</div><div class="line">116</div><div class="line">117</div><div class="line">118</div><div class="line">119</div><div class="line">120</div><div class="line">121</div><div class="line">122</div><div class="line">123</div><div class="line">124</div><div class="line">125</div><div class="line">126</div><div class="line">127</div><div class="line">128</div><div class="line">129</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">package</span> com.zxy.lab.code.redis;</div><div class="line"></div><div class="line"><span class="keyword">import</span> com.google.gson.Gson;</div><div class="line"><span class="keyword">import</span> org.junit.Test;</div><div class="line"><span class="keyword">import</span> org.junit.runner.RunWith;</div><div class="line"><span class="keyword">import</span> org.springframework.beans.factory.annotation.Autowired;</div><div class="line"><span class="keyword">import</span> org.springframework.dao.DataAccessException;</div><div class="line"><span class="keyword">import</span> org.springframework.data.redis.connection.RedisConnection;</div><div class="line"><span class="keyword">import</span> org.springframework.data.redis.core.RedisCallback;</div><div class="line"><span class="keyword">import</span> org.springframework.data.redis.core.RedisTemplate;</div><div class="line"><span class="keyword">import</span> org.springframework.data.redis.core.StringRedisTemplate;</div><div class="line"><span class="keyword">import</span> org.springframework.data.redis.core.ValueOperations;</div><div class="line"><span class="keyword">import</span> org.springframework.data.redis.serializer.RedisSerializer;</div><div class="line"><span class="keyword">import</span> org.springframework.test.context.ContextConfiguration;</div><div class="line"><span class="keyword">import</span> org.springframework.test.context.junit4.SpringJUnit4ClassRunner;</div><div class="line"></div><div class="line"><span class="keyword">import</span> javax.annotation.Resource;</div><div class="line"><span class="keyword">import</span> java.io.Serializable;</div><div class="line"><span class="keyword">import</span> java.util.Date;</div><div class="line"></div><div class="line"><span class="comment">/**</span></div><div class="line"> * Created by cdzhouxiaoyu@jd.com on 2017/3/28.</div><div class="line"> */</div><div class="line"><span class="meta">@RunWith</span>(SpringJUnit4ClassRunner.class)</div><div class="line"><span class="meta">@ContextConfiguration</span>(<span class="string">"classpath:spring-config.xml"</span>)</div><div class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">SentinelRedisTest</span> </span>&#123;</div><div class="line"></div><div class="line">    <span class="meta">@Resource</span>(name = <span class="string">"stringRedisTemplate"</span>)</div><div class="line">    <span class="keyword">private</span> StringRedisTemplate stringRedisTemplate;</div><div class="line"></div><div class="line">    <span class="meta">@Autowired</span></div><div class="line">    <span class="keyword">private</span> RedisTemplate&lt;String, Object&gt; redisTemplate;</div><div class="line"></div><div class="line">    <span class="meta">@Test</span></div><div class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">testPutCache</span><span class="params">()</span> </span>&#123;</div><div class="line">        String key = <span class="string">"redis-test"</span>;</div><div class="line">        ValueOperations&lt;String, String&gt; valueOperations = stringRedisTemplate.opsForValue();</div><div class="line">        valueOperations.set(key, <span class="string">"hello"</span>);</div><div class="line">        System.out.println(valueOperations.get(key));</div><div class="line"><span class="comment">//        hello</span></div><div class="line">    &#125;</div><div class="line"></div><div class="line">    <span class="meta">@Test</span></div><div class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">testPutObject</span><span class="params">()</span> </span>&#123;</div><div class="line">        String key = <span class="string">"redis-test-order"</span>;</div><div class="line">        Order order = <span class="keyword">new</span> Order(<span class="number">1234L</span>, <span class="number">100</span>, <span class="keyword">new</span> Date());</div><div class="line">        ValueOperations&lt;String, Object&gt; valueOperations = redisTemplate.opsForValue();</div><div class="line">        valueOperations.set(key, order);</div><div class="line">        System.out.println(valueOperations.get(key));</div><div class="line"><span class="comment">//        Order&#123;orderId=1234, price=100.0, submitTime=Tue Mar 28 17:51:56 CST 2017&#125;</span></div><div class="line">    &#125;</div><div class="line"></div><div class="line">    <span class="meta">@Test</span></div><div class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">testPutObjectByStringRedisTemplate</span><span class="params">()</span> </span>&#123;</div><div class="line">        <span class="keyword">final</span> String key = <span class="string">"redis-test-order"</span>;</div><div class="line">        <span class="keyword">final</span> Order order = <span class="keyword">new</span> Order(<span class="number">1234L</span>, <span class="number">100</span>, <span class="keyword">new</span> Date());</div><div class="line">        Boolean result = stringRedisTemplate.execute(<span class="keyword">new</span> RedisCallback&lt;Boolean&gt;() &#123;</div><div class="line">            <span class="meta">@Override</span></div><div class="line">            <span class="function"><span class="keyword">public</span> Boolean <span class="title">doInRedis</span><span class="params">(RedisConnection redisConnection)</span> <span class="keyword">throws</span> DataAccessException </span>&#123;</div><div class="line">                <span class="comment">// 先将对象转换为json字符串，再采用StringSerializer。可知，这里可以自定义序列号方式，比如采用Protostuff序列号对象</span></div><div class="line">                RedisSerializer&lt;String&gt; stringSerializer = redisTemplate.getStringSerializer();</div><div class="line">                <span class="keyword">byte</span>[] k = stringSerializer.serialize(key);</div><div class="line">                <span class="keyword">byte</span>[] v = stringSerializer.serialize(<span class="keyword">new</span> Gson().toJson(order));</div><div class="line">                <span class="keyword">return</span> redisConnection.setNX(k, v);</div><div class="line">            &#125;</div><div class="line">        &#125;);</div><div class="line"></div><div class="line">        Object value = stringRedisTemplate.execute(<span class="keyword">new</span> RedisCallback&lt;Object&gt;() &#123;</div><div class="line">            <span class="meta">@Override</span></div><div class="line">            <span class="function"><span class="keyword">public</span> Object <span class="title">doInRedis</span><span class="params">(RedisConnection redisConnection)</span> <span class="keyword">throws</span> DataAccessException </span>&#123;</div><div class="line">                RedisSerializer&lt;String&gt; stringSerializer = redisTemplate.getStringSerializer();</div><div class="line">                <span class="keyword">byte</span>[] v = redisConnection.get(stringSerializer.serialize(key));</div><div class="line">                String valueStr = stringSerializer.deserialize(v);</div><div class="line">                <span class="keyword">return</span> <span class="keyword">new</span> Gson().fromJson(valueStr, Order.class);</div><div class="line">            &#125;</div><div class="line">        &#125;);</div><div class="line">        System.out.println(value);</div><div class="line">        <span class="comment">//Order&#123;orderId=1234, price=100.0, submitTime=Tue Mar 28 18:18:40 CST 2017&#125;</span></div><div class="line">    &#125;</div><div class="line"></div><div class="line"></div><div class="line">    <span class="keyword">public</span> <span class="keyword">static</span> <span class="class"><span class="keyword">class</span> <span class="title">Order</span> <span class="keyword">implements</span> <span class="title">Serializable</span></span>&#123;</div><div class="line">        <span class="keyword">private</span> Long orderId;</div><div class="line">        <span class="keyword">private</span> <span class="keyword">double</span> price;</div><div class="line">        <span class="keyword">private</span> Date submitTime;</div><div class="line"></div><div class="line">        <span class="function"><span class="keyword">public</span> <span class="title">Order</span><span class="params">()</span> </span>&#123;</div><div class="line">        &#125;</div><div class="line"></div><div class="line">        <span class="function"><span class="keyword">public</span> <span class="title">Order</span><span class="params">(Long orderId, <span class="keyword">double</span> price, Date submitTime)</span> </span>&#123;</div><div class="line">            <span class="keyword">this</span>.orderId = orderId;</div><div class="line">            <span class="keyword">this</span>.price = price;</div><div class="line">            <span class="keyword">this</span>.submitTime = submitTime;</div><div class="line">        &#125;</div><div class="line"></div><div class="line">        <span class="function"><span class="keyword">public</span> Long <span class="title">getOrderId</span><span class="params">()</span> </span>&#123;</div><div class="line">            <span class="keyword">return</span> orderId;</div><div class="line">        &#125;</div><div class="line"></div><div class="line">        <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">setOrderId</span><span class="params">(Long orderId)</span> </span>&#123;</div><div class="line">            <span class="keyword">this</span>.orderId = orderId;</div><div class="line">        &#125;</div><div class="line"></div><div class="line">        <span class="function"><span class="keyword">public</span> <span class="keyword">double</span> <span class="title">getPrice</span><span class="params">()</span> </span>&#123;</div><div class="line">            <span class="keyword">return</span> price;</div><div class="line">        &#125;</div><div class="line"></div><div class="line">        <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">setPrice</span><span class="params">(<span class="keyword">double</span> price)</span> </span>&#123;</div><div class="line">            <span class="keyword">this</span>.price = price;</div><div class="line">        &#125;</div><div class="line"></div><div class="line">        <span class="function"><span class="keyword">public</span> Date <span class="title">getSubmitTime</span><span class="params">()</span> </span>&#123;</div><div class="line">            <span class="keyword">return</span> submitTime;</div><div class="line">        &#125;</div><div class="line"></div><div class="line">        <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">setSubmitTime</span><span class="params">(Date submitTime)</span> </span>&#123;</div><div class="line">            <span class="keyword">this</span>.submitTime = submitTime;</div><div class="line">        &#125;</div><div class="line"></div><div class="line">        <span class="meta">@Override</span></div><div class="line">        <span class="function"><span class="keyword">public</span> String <span class="title">toString</span><span class="params">()</span> </span>&#123;</div><div class="line">            <span class="keyword">return</span> <span class="string">"Order&#123;"</span> +</div><div class="line">                    <span class="string">"orderId="</span> + orderId +</div><div class="line">                    <span class="string">", price="</span> + price +</div><div class="line">                    <span class="string">", submitTime="</span> + submitTime +</div><div class="line">                    <span class="string">'&#125;'</span>;</div><div class="line">        &#125;</div><div class="line">    &#125;</div><div class="line">&#125;</div></pre></td></tr></table></figure></p>
+<h2 id="常见问题"><a href="#常见问题" class="headerlink" title="常见问题"></a>常见问题</h2><p>以下是测试过程中遇到的问题：</p>
+<ol>
+<li>测试工程启动时报如下错误：</li>
+</ol>
+<p>java.lang.NoSuchMethodError: org.springframework.core.serializer.support.DeserializingConverter</p>
+<p>详细错误信息如下：<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div></pre></td><td class="code"><pre><div class="line">Caused by: org.springframework.beans.factory.BeanCreationException: Error creating bean with name &apos;redisTemplate&apos; defined in class path resource [spring/spring-redis.xml]: Invocation of init method failed; nested exception is java.lang.NoSuchMethodError: org.springframework.core.serializer.support.DeserializingConverter.&lt;init&gt;(Ljava/lang/ClassLoader;)V</div><div class="line">	at org.springframework.beans.factory.support.AbstractAutowireCapableBeanFactory.initializeBean(AbstractAutowireCapableBeanFactory.java:1514)</div><div class="line">	at org.springframework.beans.factory.support.AbstractAutowireCapableBeanFactory.doCreateBean(AbstractAutowireCapableBeanFactory.java:519)</div><div class="line">	at org.springframework.beans.factory.support.AbstractAutowireCapableBeanFactory.createBean(AbstractAutowireCapableBeanFactory.java:456)</div><div class="line">	at org.springframework.beans.factory.support.AbstractBeanFactory$1.getObject(AbstractBeanFactory.java:293)</div><div class="line">	at org.springframework.beans.factory.support.DefaultSingletonBeanRegistry.getSingleton(DefaultSingletonBeanRegistry.java:223)</div><div class="line">	at org.springframework.beans.factory.support.AbstractBeanFactory.doGetBean(AbstractBeanFactory.java:290)</div><div class="line">	at org.springframework.beans.factory.support.AbstractBeanFactory.getBean(AbstractBeanFactory.java:191)</div><div class="line">	at org.springframework.beans.factory.support.DefaultListableBeanFactory.preInstantiateSingletons(DefaultListableBeanFactory.java:638)</div><div class="line">	at org.springframework.context.support.AbstractApplicationContext.finishBeanFactoryInitialization(AbstractApplicationContext.java:942)</div><div class="line">	at org.springframework.context.support.AbstractApplicationContext.refresh(AbstractApplicationContext.java:482)</div><div class="line">	at org.springframework.test.context.support.AbstractGenericContextLoader.loadContext(AbstractGenericContextLoader.java:120)</div><div class="line">	at org.springframework.test.context.support.AbstractGenericContextLoader.loadContext(AbstractGenericContextLoader.java:60)</div><div class="line">	at org.springframework.test.context.support.AbstractDelegatingSmartContextLoader.delegateLoading(AbstractDelegatingSmartContextLoader.java:102)</div><div class="line">	at org.springframework.test.context.support.AbstractDelegatingSmartContextLoader.loadContext(AbstractDelegatingSmartContextLoader.java:246)</div><div class="line">	at org.springframework.test.context.CacheAwareContextLoaderDelegate.loadContextInternal(CacheAwareContextLoaderDelegate.java:69)</div><div class="line">	at org.springframework.test.context.CacheAwareContextLoaderDelegate.loadContext(CacheAwareContextLoaderDelegate.java:95)</div><div class="line">	... 29 more</div><div class="line">Caused by: java.lang.NoSuchMethodError: org.springframework.core.serializer.support.DeserializingConverter.&lt;init&gt;(Ljava/lang/ClassLoader;)V</div><div class="line">	at org.springframework.data.redis.serializer.JdkSerializationRedisSerializer.&lt;init&gt;(JdkSerializationRedisSerializer.java:54)</div><div class="line">	at org.springframework.data.redis.core.RedisTemplate.afterPropertiesSet(RedisTemplate.java:122)</div><div class="line">	at org.springframework.beans.factory.support.AbstractAutowireCapableBeanFactory.invokeInitMethods(AbstractAutowireCapableBeanFactory.java:1573)</div><div class="line">	at org.springframework.beans.factory.support.AbstractAutowireCapableBeanFactory.initializeBean(AbstractAutowireCapableBeanFactory.java:1511)</div><div class="line">	... 44 more</div></pre></td></tr></table></figure></p>
+<p><strong>原因：</strong> spring版本过低，spring-data-redis采用了新的构造函数。</p>
+<p><strong>解决方案：</strong>升级spring版本指4.2.1以上</p>
+
+        
+        </div>
+		
+			<div id="donate" style="text-align:center">
+			<div class="post-donate" style="margin-bottom: 30px;margin-top: 10px;">
+    <div id="donate_board" class="donate_bar center">
+        <a id="btn_donate" class="btn_donate" href="javascript:;" title="donate"></a>
+        <span class="donate_txt">
+           欣赏此文？求鼓励，求支持！
+        </span>
+        <br>
+    </div>
+    <div id="donate_guide" class="donate_bar donate_bar2 center hidden">
+        <img src="/css/images/alipay.jpg" id="weixin" title="alipay doante" alt="alipay doante">
+        <img src="/css/images/wechatpay.jpg" title="wechatpay donate" id="zhifubao" alt="echatpay donate">
+    </div>
+    <script type="text/javascript">
+        $('#weixin').hover()
+        document.getElementById('btn_donate').onclick = function () {
+            $('#donate_board').addClass('hidden');
+            $('#donate_guide').removeClass('hidden');
+        }
+
+    </script>
+</div>
+			</div>
+		
+        <footer class="article-footer">
+            
+            <div class="share-container">
+
+
+    <div class="bdsharebuttonbox">
+    <a href="#" class="bds_more" data-cmd="more">分享到：</a>
+	<a href="#" class="bds_weixin" data-cmd="weixin" title="分享到微信">微信</a>
+    <a href="#" class="bds_tsina" data-cmd="tsina" title="分享到新浪微博">微博</a>
+	<!--
+    <a href="#" class="bds_tqq" data-cmd="tqq" title="分享到腾讯微博">腾讯微博</a>
+    <a href="#" class="bds_renren" data-cmd="renren" title="分享到人人网">人人网</a>
+	<a href="#" class="bds_qzone" data-cmd="qzone" title="分享到QQ空间">QQ空间</a>
+	-->
+    
+</div>
+<script>
+window._bd_share_config={"common":{"bdSnsKey":{},"bdText":"","bdMini":"2","bdMiniList":false,"bdPic":"","bdStyle":"0","bdSize":"16"},"share":{"bdSize":16}};with(document)0[(getElementsByTagName('head')[0]||body).appendChild(createElement('script')).src='/static/api/js/share.js?v=89860593.js?cdnversion='+~(-new Date()/36e5)];
+</script>
+<style>
+    .bdshare_popup_box {
+        border-radius: 4px;
+        border: #e1e1e1 solid 1px;
+    }
+    .bdshare-button-style0-16 a,
+    .bdshare-button-style0-16 .bds_more {
+        padding-left: 20px;
+        margin: 6px 10px 6px 0;
+    }
+    .bdshare_dialog_list a,
+    .bdshare_popup_list a,
+    .bdshare_popup_bottom a {
+        font-family: 'Microsoft Yahei';
+    }
+    .bdshare_popup_top {
+        display: none;
+    }
+    .bdshare_popup_bottom {
+        height: auto;
+        padding: 5px;
+    }
+</style>
+
+
+</div>
+
+            
+            
+    
+        <a href="https://minibox.coding.me/2016/03/23/Redis Sentinel高可用集群搭建及Spring集成/#comments" class="article-comment-link ds-thread-count" data-thread-key="https://minibox.coding.me/2016/03/23/Redis Sentinel高可用集群搭建及Spring集成/">评论</a>
+    
+
+        </footer>
+    </div>
+    
+        
+<nav id="article-nav">
+    
+        <a href="/2016/03/25/Redis Sentinel原理/" id="article-nav-newer" class="article-nav-link-wrap">
+            <strong class="article-nav-caption">上一篇</strong>
+            <div class="article-nav-title">
+                
+                    Redis Sentinel原理
+                
+            </div>
+        </a>
+    
+    
+        <a href="/2015/09/21/hexo添加打赏功能/" id="article-nav-older" class="article-nav-link-wrap">
+            <strong class="article-nav-caption">下一篇</strong>
+            <div class="article-nav-title">hexo添加打赏功能</div>
+        </a>
+    
+</nav>
+
+
+    
+</article>
+
+
+    
+    <section id="comments">
+    
+        
+    <div class="ds-thread" data-thread-key="2016/03/23/Redis Sentinel高可用集群搭建及Spring集成/" data-title="Redis Sentinel高可用集群搭建及Spring集成" data-url="https://minibox.coding.me/2016/03/23/Redis Sentinel高可用集群搭建及Spring集成/"></div>
+    <style>
+        #ds-thread #ds-reset .ds-textarea-wrapper {
+            background: none;
+        }
+        #ds-reset .ds-avatar img {
+            box-shadow: none;
+        }
+        #ds-reset .ds-gradient-bg {
+            background: #f7f7f7;
+        }
+        #ds-thread #ds-reset li.ds-tab a {
+            border-radius: 3px;
+        }
+        #ds-thread #ds-reset .ds-post-button {
+            color: white;
+            border: none;
+            box-shadow: none;
+            background: #d32;
+            text-shadow: none;
+            font-weight: normal;
+            font-family: 'Microsoft Yahei';
+        }
+        #ds-thread #ds-reset .ds-post-button:hover {
+            color: white;
+            background: #DE594C;
+        }
+        #ds-thread #ds-reset .ds-post-button:active {
+            background: #d32;
+        }
+        #ds-smilies-tooltip ul.ds-smilies-tabs li a.ds-current {
+            color: white;
+            background: #d32;
+            box-shadow: none;
+            text-shadow: none;
+            font-weight: normal;
+        }
+    </style>
+
+    
+    </section>
+
+</section>
+            
+                <aside id="sidebar">
+   
+        
+    <div class="widget-wrap">
+        <h3 class="widget-title"><i class="fa fa-book"></i>最新文章</h3>
+        <div class="widget">
+            <ul id="recent-post" class="">
+                
+                    <li>
+                        
+                        <div class="item-thumbnail">
+                            <a href="/2016/04/29/Hexo-icarus主题小功能设置/" class="thumbnail">
+    
+    
+        <span class="thumbnail-image thumbnail-none"></span>
+    
+</a>
+
+                        </div>
+                        
+                        <div class="item-inner">
+                            <p class="item-category"><a class="article-category-link" href="/categories/杂谈/">杂谈</a></p>
+                            <p class="item-title"><a href="/2016/04/29/Hexo-icarus主题小功能设置/" class="title">Hexo icarus主题小功能设置</a></p>
+                            <p class="item-date"><time datetime="2016-04-29T03:05:56.000Z" itemprop="datePublished">2016-04-29</time></p>
+                        </div>
+                    </li>
+                
+                    <li>
+                        
+                        <div class="item-thumbnail">
+                            <a href="/2016/04/20/缓存穿透及雪崩之常见解决方案/" class="thumbnail">
+    
+    
+        <span class="thumbnail-image thumbnail-none"></span>
+    
+</a>
+
+                        </div>
+                        
+                        <div class="item-inner">
+                            <p class="item-category"><a class="article-category-link" href="/categories/redis/">redis</a></p>
+                            <p class="item-title"><a href="/2016/04/20/缓存穿透及雪崩之常见解决方案/" class="title">缓存穿透及雪崩之常见解决方案</a></p>
+                            <p class="item-date"><time datetime="2016-04-20T07:33:49.000Z" itemprop="datePublished">2016-04-20</time></p>
+                        </div>
+                    </li>
+                
+                    <li>
+                        
+                        <div class="item-thumbnail">
+                            <a href="/2016/04/10/Git多ssh-key配置/" class="thumbnail">
+    
+    
+        <span class="thumbnail-image thumbnail-none"></span>
+    
+</a>
+
+                        </div>
+                        
+                        <div class="item-inner">
+                            <p class="item-category"><a class="article-category-link" href="/categories/git/">git</a></p>
+                            <p class="item-title"><a href="/2016/04/10/Git多ssh-key配置/" class="title">Git多ssh-key配置</a></p>
+                            <p class="item-date"><time datetime="2016-04-10T06:40:54.000Z" itemprop="datePublished">2016-04-10</time></p>
+                        </div>
+                    </li>
+                
+            </ul>
+        </div>
+    </div>
+
+    
+        
+    <div class="widget-wrap">
+        <h3 class="widget-title"><i class="fa fa-folder"></i>分类</h3>
+        <div class="widget">
+            <ul class="category-list"><li class="category-list-item"><a class="category-list-link" href="/categories/git/">git</a><span class="category-list-count">1</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/redis/">redis</a><span class="category-list-count">3</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/杂谈/">杂谈</a><span class="category-list-count">3</span></li></ul>
+        </div>
+    </div>
+
+    
+        
+    <div class="widget-wrap">
+        <h3 class="widget-title"><i class="fa fa-archive"></i>归档</h3>
+        <div class="widget">
+            <ul class="archive-list"><li class="archive-list-item"><a class="archive-list-link" href="/archives/2016/04/">四月 2016</a><span class="archive-list-count">3</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2016/03/">三月 2016</a><span class="archive-list-count">3</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2015/09/">九月 2015</a><span class="archive-list-count">1</span></li></ul>
+        </div>
+    </div>
+
+    
+        
+    <div class="widget-wrap">
+        <h3 class="widget-title"><i class="fa fa-tags"></i>标签云</h3>
+        <div class="widget tagcloud">
+            <a href="/tags/git/" style="font-size: 10px;">git</a> <a href="/tags/hexo/" style="font-size: 15px;">hexo</a> <a href="/tags/redis/" style="font-size: 20px;">redis</a> <a href="/tags/sentinel/" style="font-size: 10px;">sentinel</a> <a href="/tags/sentinel原理/" style="font-size: 10px;">sentinel原理</a> <a href="/tags/spring-data-redis/" style="font-size: 10px;">spring-data-redis</a> <a href="/tags/打赏/" style="font-size: 10px;">打赏</a> <a href="/tags/缓存穿透/" style="font-size: 10px;">缓存穿透</a> <a href="/tags/缓存雪崩/" style="font-size: 10px;">缓存雪崩</a>
+        </div>
+    </div>
+
+    
+        
+    <div class="widget-wrap widget-list">
+        <h3 class="widget-title"><i class="fa fa-link"></i>链接</h3>
+        <div class="widget">
+            <ul>
+                
+                    <li>
+                        <a href="http://www.liaoxuefeng.com" target="_blank">廖雪峰</a>
+                    </li>
+                
+                    <li>
+                        <a href="http://www.ruanyifeng.com/blog/" target="_blank">阮一峰</a>
+                    </li>
+                
+                    <li>
+                        <a href="http://coolshell.cn/" target="_blank">酷壳</a>
+                    </li>
+                
+                    <li>
+                        <a href="http://jinnianshilongnian.iteye.com/" target="_blank">开涛的博客</a>
+                    </li>
+                
+            </ul>
+        </div>
+    </div>
+
+
+    
+    <div id="toTop" class="fa fa-angle-up"></div>
+</aside>
+            
+        </div>
+        <footer id="footer">
+    <div class="outer">
+        <div id="footer-info" class="inner">
+            &copy; 2017 Mickole Chou<br>
+            Powered by <a href="http://hexo.io/" target="_blank">Hexo</a>. Theme by <a href="http://github.com/ppoffice">PPOffice</a>
+			.
+Analyse with <script src="https://s4.cnzz.com/z_stat.php?id=1261681714&web_id=1261681714" language="JavaScript"></script>
+
+        </div>
+    </div>
+</footer>
+        
+    
+    <script type="text/javascript">
+    var duoshuoQuery = {short_name:'mickolechou'};
+    (function() {
+    var ds = document.createElement('script');
+    ds.type = 'text/javascript';ds.async = true;
+    ds.src = (document.location.protocol == 'https:' ? 'https:' : 'http:') + '//static.duoshuo.com/embed.js';
+    ds.charset = 'UTF-8';
+    (document.getElementsByTagName('head')[0]
+    || document.getElementsByTagName('body')[0]).appendChild(ds);
+    })();
+    </script>
+
+
+
+
+    
+        <script src="/libs/lightgallery/js/lightgallery.min.js"></script>
+        <script src="/libs/lightgallery/js/lg-thumbnail.min.js"></script>
+        <script src="/libs/lightgallery/js/lg-pager.min.js"></script>
+        <script src="/libs/lightgallery/js/lg-autoplay.min.js"></script>
+        <script src="/libs/lightgallery/js/lg-fullscreen.min.js"></script>
+        <script src="/libs/lightgallery/js/lg-zoom.min.js"></script>
+        <script src="/libs/lightgallery/js/lg-hash.min.js"></script>
+        <script src="/libs/lightgallery/js/lg-share.min.js"></script>
+        <script src="/libs/lightgallery/js/lg-video.min.js"></script>
+    
+    
+        <script src="/libs/justified-gallery/jquery.justifiedGallery.min.js"></script>
+    
+    
+
+
+
+<!-- Custom Scripts -->
+<script src="/js/main.js"></script>
+
+    </div>
+</body>
+</html>

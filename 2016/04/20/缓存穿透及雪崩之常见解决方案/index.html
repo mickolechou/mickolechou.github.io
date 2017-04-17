@@ -1,0 +1,671 @@
+<!DOCTYPE html>
+<html lang=zh>
+<head>
+	
+	
+        <meta name="baidu-site-verification" content="IqiX1RtnVh" />
+    
+	
+        <meta name="google-site-verification" content="2AHl5z8Q4Anxqs-qCvhBuOQKmYkXWH2j5pLi8NZbV-U" />
+    
+    <meta charset="utf-8">
+    
+    <title>缓存穿透及雪崩之常见解决方案 | 迷你盒</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1" />
+    <meta name="description" content="缓存作为应对高并发大流量的神兵利器，如果使用不当，可能会给系统造成致命一击。
+
+缓存穿透什么叫缓存穿透缓存穿透：简而言之就是查询缓存系统和后端系统都不存在的数据。如果这类查询并发量很大，将会对后端存储系统造成很大压力。">
+<meta property="og:type" content="article">
+<meta property="og:title" content="缓存穿透及雪崩之常见解决方案">
+<meta property="og:url" content="https://minibox.coding.me/2016/04/20/缓存穿透及雪崩之常见解决方案/index.html">
+<meta property="og:site_name" content="迷你盒">
+<meta property="og:description" content="缓存作为应对高并发大流量的神兵利器，如果使用不当，可能会给系统造成致命一击。
+
+缓存穿透什么叫缓存穿透缓存穿透：简而言之就是查询缓存系统和后端系统都不存在的数据。如果这类查询并发量很大，将会对后端存储系统造成很大压力。">
+<meta property="og:updated_time" content="2017-04-17T02:08:21.491Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="缓存穿透及雪崩之常见解决方案">
+<meta name="twitter:description" content="缓存作为应对高并发大流量的神兵利器，如果使用不当，可能会给系统造成致命一击。
+
+缓存穿透什么叫缓存穿透缓存穿透：简而言之就是查询缓存系统和后端系统都不存在的数据。如果这类查询并发量很大，将会对后端存储系统造成很大压力。">
+    
+
+    
+        <link rel="alternate" href="https://minibox.coding.me/atom.xml" title="迷你盒" type="application/atom+xml" />
+    
+
+    
+        <link rel="icon" href="/css/images/fav.png# path to favicon" />
+    
+
+    <link rel="stylesheet" href="/libs/font-awesome/css/font-awesome.min.css">
+    <link rel="stylesheet" href="/libs/open-sans/styles.css">
+    <link rel="stylesheet" href="/libs/source-code-pro/styles.css">
+
+    <link rel="stylesheet" href="/css/style.css">
+
+    <script src="/libs/jquery/2.1.3/jquery.min.js"></script>
+    
+    
+        <link rel="stylesheet" href="/libs/lightgallery/css/lightgallery.min.css">
+    
+    
+        <link rel="stylesheet" href="/libs/justified-gallery/justifiedGallery.min.css">
+    
+    
+    
+    
+
+
+</head>
+
+<body>
+    <div id="container">
+        <header id="header">
+    <div id="header-main" class="header-inner">
+        <div class="outer">
+            <a href="/" id="logo">
+                <i class="logo"></i>
+                <span class="site-title">迷你盒</span>
+            </a>
+            <nav id="main-nav">
+                
+                    <a class="main-nav-link" href="/."><i class="fa fa-home"></i>主页</a>
+                
+                    <a class="main-nav-link" href="/archives"><i class="fa fa-archive"></i>归档</a>
+                
+                    <a class="main-nav-link" href="/categories"><i class="fa fa-folder"></i>分类</a>
+                
+                    <a class="main-nav-link" href="/tags"><i class="fa fa-tags"></i>标签</a>
+                
+                    <a class="main-nav-link" href="/about"><i class="fa fa-user"></i>关于</a>
+                
+            </nav>
+            
+                
+                <nav id="sub-nav">
+                    <div class="profile" id="profile-nav">
+                        <a id="profile-anchor" href="javascript:;">
+                            <img class="avatar" src="/css/images/st.png" />
+                            <i class="fa fa-caret-down"></i>
+                        </a>
+                    </div>
+                </nav>
+            
+            <div id="search-form-wrap">
+
+    <form class="search-form">
+        <input type="text" class="ins-search-input search-form-input" placeholder="搜索" />
+        <button type="submit" class="search-form-submit"></button>
+    </form>
+    <div class="ins-search">
+    <div class="ins-search-mask"></div>
+    <div class="ins-search-container">
+        <div class="ins-input-wrapper">
+            <input type="text" class="ins-search-input" placeholder="想要查找什么..." />
+            <span class="ins-close ins-selectable"><i class="fa fa-times-circle"></i></span>
+        </div>
+        <div class="ins-section-wrapper">
+            <div class="ins-section-container"></div>
+        </div>
+    </div>
+</div>
+<script>
+(function (window) {
+    var INSIGHT_CONFIG = {
+        TRANSLATION: {
+            POSTS: '文章',
+            PAGES: '页面',
+            CATEGORIES: '分类',
+            TAGS: '标签',
+            UNTITLED: '(未命名)',
+        },
+        ROOT_URL: '/',
+        CONTENT_URL: '/content.json',
+    };
+    window.INSIGHT_CONFIG = INSIGHT_CONFIG;
+})(window);
+</script>
+<script src="/js/insight.js"></script>
+
+</div>
+        </div>
+    </div>
+    <div id="main-nav-mobile" class="header-sub header-inner">
+        <table class="menu outer">
+            <tr>
+                
+                    <td><a class="main-nav-link" href="/."><i class="fa fa-home"><span class="nav-link-text">主页</span></a></td>
+                
+                    <td><a class="main-nav-link" href="/archives"><i class="fa fa-archive"><span class="nav-link-text">归档</span></a></td>
+                
+                    <td><a class="main-nav-link" href="/categories"><i class="fa fa-folder"><span class="nav-link-text">分类</span></a></td>
+                
+                    <td><a class="main-nav-link" href="/tags"><i class="fa fa-tags"><span class="nav-link-text">标签</span></a></td>
+                
+                    <td><a class="main-nav-link" href="/about"><i class="fa fa-user"><span class="nav-link-text">关于</span></a></td>
+                
+                <td>
+                    
+    <div class="search-form">
+        <input type="text" class="ins-search-input search-form-input" placeholder="搜索" />
+    </div>
+
+                </td>
+            </tr>
+        </table>
+    </div>
+</header>
+
+        <div class="outer">
+            
+                
+
+<aside id="profile">
+    <div class="inner profile-inner">
+        <div class="base-info profile-block">
+            <img id="avatar" src="/css/images/st.png" />
+            <h2 id="name">Mickole Chou</h2>
+            <h3 id="title">Developer &amp; Writer</h3>
+            <span id="location"><i class="fa fa-map-marker"></i>Chengdu, China</span>
+            <a id="follow" target="_blank" href="https://github.com/mickolechou">关注我</a>
+        </div>
+        <div class="article-info profile-block">
+            <div class="article-info-block">
+                7
+                <span>文章</span>
+            </div>
+            <div class="article-info-block">
+                9
+                <span>标签</span>
+            </div>
+        </div>
+        
+        <div class="profile-block social-links">
+            <table>
+                <tr>
+                    
+                    
+                    <td>
+                        <a href="https://github.com/mickolechou" target="_blank" title="github" class=tooltip>
+                            <i class="fa fa-github"></i>
+                        </a>
+                    </td>
+                    
+                    <td>
+                        <a href="/" target="_blank" title="weibo" class=tooltip>
+                            <i class="fa fa-weibo"></i>
+                        </a>
+                    </td>
+                    
+                    <td>
+                        <a href="/" target="_blank" title="weixin" class=tooltip>
+                            <i class="fa fa-weixin"></i>
+                        </a>
+                    </td>
+                    
+                    <td>
+                        <a href="https://minibox.coding.me/atom.xml" target="_blank" title="rss" class=tooltip>
+                            <i class="fa fa-rss"></i>
+                        </a>
+                    </td>
+                    
+                </tr>
+            </table>
+        </div>
+        
+    </div>
+</aside>
+
+            
+            <section id="main"><article id="post-缓存穿透及雪崩之常见解决方案" class="article article-type-post" itemscope itemprop="blogPost">
+    <div class="article-inner">
+        
+        
+            <header class="article-header">
+                
+    
+        <h1 class="article-title" itemprop="name">
+            缓存穿透及雪崩之常见解决方案
+        </h1>
+    
+
+                
+                    <div class="article-meta">
+                        
+    <div class="article-date">
+        <i class="fa fa-calendar"></i>
+        <a href="/2016/04/20/缓存穿透及雪崩之常见解决方案/">
+            <time datetime="2016-04-20T07:33:49.000Z" itemprop="datePublished">2016-04-20</time>
+        </a>
+    </div>
+
+
+                        
+    <div class="article-category">
+    	<i class="fa fa-folder"></i>
+        <a class="article-category-link" href="/categories/redis/">redis</a>
+    </div>
+
+                        
+    <div class="article-tag">
+        <i class="fa fa-tag"></i>
+        <a class="tag-link" href="/tags/redis/">redis</a>, <a class="tag-link" href="/tags/缓存穿透/">缓存穿透</a>, <a class="tag-link" href="/tags/缓存雪崩/">缓存雪崩</a>
+    </div>
+
+                    </div>
+                
+            </header>
+        
+        
+        <div class="article-entry" itemprop="articleBody">
+        
+            
+                <div id="toc" class="toc-article">
+                <strong class="toc-title">文章目录</strong>
+                    <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#缓存穿透"><span class="toc-number">1.</span> <span class="toc-text">缓存穿透</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#什么叫缓存穿透"><span class="toc-number">1.1.</span> <span class="toc-text">什么叫缓存穿透</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#如何避免缓存穿透"><span class="toc-number">1.2.</span> <span class="toc-text">如何避免缓存穿透</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#解决方案"><span class="toc-number">1.3.</span> <span class="toc-text">解决方案</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#缓存雪崩"><span class="toc-number">2.</span> <span class="toc-text">缓存雪崩</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#什么叫缓存雪崩"><span class="toc-number">2.1.</span> <span class="toc-text">什么叫缓存雪崩</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#如何防止雪崩发生"><span class="toc-number">2.2.</span> <span class="toc-text">如何防止雪崩发生</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#解决方案-1"><span class="toc-number">2.3.</span> <span class="toc-text">解决方案</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#案例分析"><span class="toc-number">3.</span> <span class="toc-text">案例分析</span></a></li></ol>
+                </div>
+            
+            <blockquote>
+<p>缓存作为应对高并发大流量的神兵利器，如果使用不当，可能会给系统造成致命一击。</p>
+</blockquote>
+<h2 id="缓存穿透"><a href="#缓存穿透" class="headerlink" title="缓存穿透"></a>缓存穿透</h2><h3 id="什么叫缓存穿透"><a href="#什么叫缓存穿透" class="headerlink" title="什么叫缓存穿透"></a>什么叫缓存穿透</h3><p><strong>缓存穿透</strong>：简而言之就是查询缓存系统和后端系统都不存在的数据。如果这类查询并发量很大，将会对后端存储系统造成很大压力。<br><a id="more"></a></p>
+<h3 id="如何避免缓存穿透"><a href="#如何避免缓存穿透" class="headerlink" title="如何避免缓存穿透"></a>如何避免缓存穿透</h3><p>造成缓存穿透根本原因：空查询。前端系统不知道所查数据到底存不存在，导致不必要查询。造成空查询的原因主要有两个：</p>
+<ul>
+<li>代码设计或数据出现问题</li>
+<li>恶意攻击</li>
+</ul>
+<p>如何解决空查询呢？<br>避免查库有两个条件：</p>
+<ol>
+<li>缓存命中，则不需要查库</li>
+<li>事先知道库中不存在，则不需要查库</li>
+</ol>
+<h3 id="解决方案"><a href="#解决方案" class="headerlink" title="解决方案"></a>解决方案</h3><p>针对第一个条件</p>
+<ol>
+<li>缓存空值</li>
+</ol>
+<p>如果查询数据库不存在，我们之前的操作就不会进行缓存，这里我们仍然缓存空对象<br>。之后再访问这个数据将会从缓存中获取，保护了后端数据源。<br>缓存空对象会有两个问题：</p>
+<ul>
+<li>空值做了缓存，意味着缓存层中存了更多的键，需要更多的内存空间 ( 如果是攻击，问题更严重 )，比较有效的方法是针对这类数据设置一个较短的过期时间，让其自动剔除。</li>
+<li>缓存层和存储层的数据会有一段时间窗口的不一致，可能会对业务有一定影响。例如过期时间设置为 5 分钟，如果此时存储层添加了这个数据，那此段时间就会出现缓存层和存储层数据的不一致，此时可以利用消息系统或者其他方式清除掉缓存层中的空对象。</li>
+</ul>
+<p><strong>注意</strong>：采用缓存空值策略，只能避免第二次空查询，第一次还是会进行查库操作。</p>
+<p>针对第二个条件</p>
+<ol>
+<li>bloom filter（布隆过滤器）</li>
+</ol>
+<p>根据存储层数据构建布隆过滤器，在进行查询操作之前先通过bloom filter判断是否存在，如果存在则继续查询操作，不存在，则直接返回，避免空查询。<br>采用布隆过滤器可能会存在以下问题：</p>
+<ul>
+<li>占用部分内存空间，因为要将数据库中的数据全量构造出一个bitmap</li>
+<li>存在误判的情况，比如某个key对应的数据其实不存在，但通过bloomfilter判断结果可能存在，这时只需进行一次查库操作，毕竟这种误判率比较低。</li>
+<li>无法删除：即使数据库中删除该数据，也无法将其从bloomfilter中删除，只能重新构建。</li>
+</ul>
+<p>使用场景：缓存命中率不高，如下场景：</p>
+<ol>
+<li>电商客户咨询场景：系统查询最近咨询客服分配给改客户，如无，则随机分配，且这里客户-&gt;最近咨询客服对应信息只存储7天。这类场景缓存命中率不高。</li>
+<li>电商商品推荐场景：针对老用户，系统根据用户购买记录进行商品推荐，新用户则没有。用户登录网站系统查询是否存在推荐数据场景，命中率不高。</li>
+</ol>
+<h2 id="缓存雪崩"><a href="#缓存雪崩" class="headerlink" title="缓存雪崩"></a>缓存雪崩</h2><h3 id="什么叫缓存雪崩"><a href="#什么叫缓存雪崩" class="headerlink" title="什么叫缓存雪崩"></a>什么叫缓存雪崩</h3><p><strong>缓存雪崩</strong>: 简而言之就是缓存不可用或失效，导致所有的查询操作都落到后端存储系统，对后端存储系统造成很大压力，严重时可能会冲垮存储系统，产生连锁反应，最终导致服务不可用。</p>
+<h3 id="如何防止雪崩发生"><a href="#如何防止雪崩发生" class="headerlink" title="如何防止雪崩发生"></a>如何防止雪崩发生</h3><p>要避免缓存雪崩，首先要清楚雪崩产生的根本原因：所有缓存在同一个时间段同时失效或不可用，导致同一时间所有查询操作都落到存储层。<br>避免过多查库请求有两个条件：</p>
+<ol>
+<li>不要让缓存在同一时间段失效即始终有部分缓存可能</li>
+<li>控制查库请求，只允许少量查库操作</li>
+</ol>
+<h3 id="解决方案-1"><a href="#解决方案-1" class="headerlink" title="解决方案"></a>解决方案</h3><p>针对以上两个条件在业务代码层面可采取以下策略：</p>
+<ul>
+<li>针对不同key设置不同失效时间，尽量将失效时间打散，不要聚集在一个时间段</li>
+<li>采取二级缓存策略：同一个数据，缓存两次，分别设置不同的失效时间，这样即使其中一个缓存失效，另一个仍然可用，注意：数据更新时要同时处理两个缓存。</li>
+<li>采用加锁或队列控制查库线程数。在缓存失效后，控制真正查库线程数。让一部分线程去查库，获取之后，存入缓存，后续查询直接从缓存获取。</li>
+<li>缓存预加载。在系统提供服务之前进行热点key缓存预加载，不至于系统启动之初，由于缓存还没存放，导致所有请求达到后端系统。</li>
+<li>缓存永不过期即不设置过期时间：不建议使用，1.造成数据不一致，2.浪费存储空间，可能会造成内存溢出。</li>
+</ul>
+<p>在缓存系统架构层面，则尽量采用集群多副本方式保证缓存服务高可用，如redis可采用Redis Sentinel或者Redis Cluster保证缓存服务高可用。</p>
+<h2 id="案例分析"><a href="#案例分析" class="headerlink" title="案例分析"></a>案例分析</h2><p>先给出通用的数据获取方式：<br><figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div><div class="line">29</div><div class="line">30</div><div class="line">31</div><div class="line">32</div><div class="line">33</div><div class="line">34</div><div class="line">35</div><div class="line">36</div><div class="line">37</div><div class="line">38</div><div class="line">39</div><div class="line">40</div><div class="line">41</div><div class="line">42</div></pre></td><td class="code"><pre><div class="line"><span class="meta">@Test</span></div><div class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">testGetData</span><span class="params">()</span> </span>&#123;</div><div class="line">    String id = <span class="string">"3"</span>;</div><div class="line">    String data = getData(id);</div><div class="line">    LOGGER.info(<span class="string">"get data:&#123;&#125;"</span>, data);</div><div class="line"></div><div class="line">&#125;</div><div class="line"></div><div class="line"><span class="comment">/**</span></div><div class="line"> * 获取数据：先缓存再DB</div><div class="line"> * <span class="doctag">@param</span> id</div><div class="line"> * <span class="doctag">@return</span></div><div class="line"> */</div><div class="line"><span class="function"><span class="keyword">private</span> String <span class="title">getData</span><span class="params">(String id)</span> </span>&#123;</div><div class="line">    String key = KEY_PREFIX + id;;</div><div class="line">    String value = cacheUtil.getString(key);</div><div class="line">    <span class="keyword">if</span> (StringUtils.isEmpty(value))&#123;</div><div class="line">        value = getFromDB(id);</div><div class="line">        <span class="keyword">if</span> (value != <span class="keyword">null</span>) &#123;</div><div class="line">            cacheUtil.setString(key, value);</div><div class="line">        &#125;</div><div class="line">        LOGGER.info(<span class="string">"get from DB:&#123;&#125;"</span>, value);</div><div class="line">    &#125; <span class="keyword">else</span> &#123;</div><div class="line">        LOGGER.info(<span class="string">"get from cache:&#123;&#125;"</span>, value);</div><div class="line">    &#125;</div><div class="line">    <span class="keyword">return</span> value;</div><div class="line">&#125;</div><div class="line"></div><div class="line"><span class="comment">/**</span></div><div class="line"> * 模拟从DB获取</div><div class="line"> * <span class="doctag">@param</span> id</div><div class="line"> * <span class="doctag">@return</span></div><div class="line"> */</div><div class="line"><span class="function"><span class="keyword">private</span> String <span class="title">getFromDB</span><span class="params">(String id)</span> </span>&#123;</div><div class="line">    <span class="keyword">try</span> &#123;</div><div class="line">        Thread.sleep(<span class="number">2000L</span>);</div><div class="line">        <span class="keyword">return</span> mockDB.get(id);</div><div class="line">    &#125; <span class="keyword">catch</span> (InterruptedException e) &#123;</div><div class="line">        e.printStackTrace();</div><div class="line">    &#125;</div><div class="line">    <span class="keyword">return</span> <span class="keyword">null</span>;</div><div class="line">&#125;</div></pre></td></tr></table></figure></p>
+<p>一般我们获取数据，先查缓存，有责返回，无，则查库，再存缓存，返回。<br>以上getData方法就是一种非常普遍的写法，但有没问题呢？<br>举个例子：假如该查库操作比较耗时，需全表扫描，耗时2s,同时数据库最大连接数200,该系统平时并发量1000，假如某时刻缓存失效，此时，所有请求落到数据库。将达到1000*2的并发。</p>
+<p>以上情况如果没有进行限制数据库连接，很有可能导致数据库挂掉。</p>
+<p>那怎么怎么限制数据库连接数呢，加锁，互斥访问。<br>如下方式：<br><figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div></pre></td><td class="code"><pre><div class="line"><span class="comment">/**</span></div><div class="line"> * 获取数据：先缓存再DB</div><div class="line"> * <span class="doctag">@param</span> id</div><div class="line"> * <span class="doctag">@return</span></div><div class="line"> */</div><div class="line"><span class="function"><span class="keyword">private</span> <span class="keyword">synchronized</span> String <span class="title">getData</span><span class="params">(String id)</span> </span>&#123;</div><div class="line">    String key = KEY_PREFIX + id;;</div><div class="line">    String value = cacheUtil.getString(key);</div><div class="line">    <span class="keyword">if</span> (StringUtils.isEmpty(value))&#123;</div><div class="line">        value = getFromDB(id);</div><div class="line">        <span class="keyword">if</span> (value != <span class="keyword">null</span>) &#123;</div><div class="line">            cacheUtil.setString(key, value);</div><div class="line">        &#125;</div><div class="line">        LOGGER.info(<span class="string">"get from DB:&#123;&#125;"</span>, value);</div><div class="line">    &#125; <span class="keyword">else</span> &#123;</div><div class="line">        LOGGER.info(<span class="string">"get from cache:&#123;&#125;"</span>, value);</div><div class="line">    &#125;</div><div class="line">    <span class="keyword">return</span> value;</div><div class="line">&#125;</div></pre></td></tr></table></figure></p>
+<p>给getData方法加上synchronized 关键字。<br>以上方式确实可以限制数据库连接数，防止雪崩，但还是存在问题。synchronized关键字的加入，导致所有线程同步访问该访问，就算查缓存也要互斥访问，大大降低了系统响应速度，不可取。</p>
+<p>这是我们可能会想，那将锁粒度细化，采用如下方式加锁：<br><figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div></pre></td><td class="code"><pre><div class="line"><span class="comment">/**</span></div><div class="line"> * 获取数据：先缓存再DB</div><div class="line"> * <span class="doctag">@param</span> id</div><div class="line"> * <span class="doctag">@return</span></div><div class="line"> */</div><div class="line"><span class="function"><span class="keyword">private</span> String <span class="title">getData</span><span class="params">(String id)</span> </span>&#123;</div><div class="line">    String key = KEY_PREFIX + id;;</div><div class="line">    String value = cacheUtil.getString(key);</div><div class="line">    <span class="keyword">if</span> (StringUtils.isEmpty(value))&#123;</div><div class="line">        <span class="keyword">synchronized</span> (<span class="keyword">this</span>)&#123;</div><div class="line">            value = getFromDB(id);</div><div class="line">            <span class="keyword">if</span> (value != <span class="keyword">null</span>) &#123;</div><div class="line">                cacheUtil.setString(key, value);</div><div class="line">            &#125;</div><div class="line">            LOGGER.info(<span class="string">"get from DB:&#123;&#125;"</span>, value);</div><div class="line">        &#125;</div><div class="line"></div><div class="line">    &#125; <span class="keyword">else</span> &#123;</div><div class="line">        LOGGER.info(<span class="string">"get from cache:&#123;&#125;"</span>, value);</div><div class="line">    &#125;</div><div class="line">    <span class="keyword">return</span> value;</div><div class="line">&#125;</div></pre></td></tr></table></figure></p>
+<p>是不是ok了呢？其实不然，synchronized (this)虽然控制了数据库连接的并发数，但是没有减少连接数，因为所有的查询线程都会发现缓存失效，然后跑到if中，等待查库。那如何解决呢，很简单：<br><strong>double check</strong>。<br><figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div><div class="line">29</div><div class="line">30</div></pre></td><td class="code"><pre><div class="line"></div><div class="line"><span class="comment">/**</span></div><div class="line"> * 获取数据：先缓存再DB</div><div class="line"> * <span class="doctag">@param</span> id</div><div class="line"> * <span class="doctag">@return</span></div><div class="line"> */</div><div class="line"><span class="function"><span class="keyword">private</span> String <span class="title">getData</span><span class="params">(String id)</span> </span>&#123;</div><div class="line">    String key = KEY_PREFIX + id;;</div><div class="line">    String value = cacheUtil.getString(key);</div><div class="line">    <span class="keyword">if</span> (StringUtils.isEmpty(value))&#123;</div><div class="line">        <span class="keyword">synchronized</span> (<span class="keyword">this</span>)&#123;</div><div class="line">            <span class="comment">//double check</span></div><div class="line">            value = cacheUtil.getString(key);</div><div class="line">            <span class="keyword">if</span> (!StringUtils.isEmpty(value)) &#123;</div><div class="line">                LOGGER.info(<span class="string">"get from cache:&#123;&#125;"</span>, value);</div><div class="line">                <span class="keyword">return</span> value;</div><div class="line">            &#125;</div><div class="line"></div><div class="line">            value = getFromDB(id);</div><div class="line">            <span class="keyword">if</span> (value != <span class="keyword">null</span>) &#123;</div><div class="line">                cacheUtil.setString(key, value);</div><div class="line">            &#125;</div><div class="line">            LOGGER.info(<span class="string">"get from DB:&#123;&#125;"</span>, value);</div><div class="line">        &#125;</div><div class="line"></div><div class="line">    &#125; <span class="keyword">else</span> &#123;</div><div class="line">        LOGGER.info(<span class="string">"get from cache:&#123;&#125;"</span>, value);</div><div class="line">    &#125;</div><div class="line">    <span class="keyword">return</span> value;</div><div class="line">&#125;</div></pre></td></tr></table></figure></p>
+<p>以上还算比较好的解决了缓存雪崩问题，但是在分布式多实例的情况下，可能会出现重复更新缓存问题。</p>
+<p>其实，针对最后一种方式，我们可以进行方法重构，getDate方法中，除了查库这条语句不太相同之外，其他代码都一样。所以，可以参考google guava cache加载策略，当缓存不存在时，调用cacheloader进行数据加载。重构之后的代码如下：<br><figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">public</span> &lt;T&gt; <span class="function">T <span class="title">getFromCache</span><span class="params">(String key, <span class="keyword">long</span> expire, Class&lt;T&gt; tClass, CacheLoader&lt;T&gt; loader)</span> </span>&#123;</div><div class="line">    T value = cacheUtil.get(key, tClass);</div><div class="line">    <span class="keyword">if</span> (StringUtils.isEmpty(value)) &#123;</div><div class="line">        <span class="keyword">synchronized</span> (<span class="keyword">this</span>) &#123;</div><div class="line">            <span class="comment">//double check</span></div><div class="line">            value = cacheUtil.get(key, tClass);</div><div class="line">            <span class="keyword">if</span> (!StringUtils.isEmpty(value)) &#123;</div><div class="line">                LOGGER.info(<span class="string">"get from cache:&#123;&#125;"</span>, value);</div><div class="line">                <span class="keyword">return</span> value;</div><div class="line">            &#125;</div><div class="line"></div><div class="line">            value = loader.load();</div><div class="line">            <span class="keyword">if</span> (value != <span class="keyword">null</span>) &#123;</div><div class="line">                cacheUtil.setWithExp(key, value, expire);</div><div class="line">            &#125;</div><div class="line">            LOGGER.info(<span class="string">"get from DB:&#123;&#125;"</span>, value);</div><div class="line">        &#125;</div><div class="line"></div><div class="line">    &#125; <span class="keyword">else</span> &#123;</div><div class="line">        LOGGER.info(<span class="string">"get from cache:&#123;&#125;"</span>, value);</div><div class="line">    &#125;</div><div class="line">    <span class="keyword">return</span> value;</div><div class="line">&#125;</div></pre></td></tr></table></figure></p>
+<p>这里定义了一个CacheLoader接口，该接口内只包含一个load抽象方法，待子类具体实现。<br><figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">interface</span> <span class="title">CacheLoader</span>&lt;<span class="title">T</span>&gt; </span>&#123;</div><div class="line"></div><div class="line">    <span class="function">T <span class="title">load</span><span class="params">()</span></span>;</div><div class="line"></div><div class="line">&#125;</div></pre></td></tr></table></figure></p>
+<p>以下是测试代码：<br><figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div></pre></td><td class="code"><pre><div class="line"><span class="function"><span class="keyword">public</span> User <span class="title">findUser</span><span class="params">(<span class="keyword">final</span> Long id)</span> </span>&#123;</div><div class="line">    String key = KEY_PREFIX + id;</div><div class="line">    User user = getFromCache(key, <span class="number">3600L</span>, User.class, <span class="keyword">new</span> CacheLoader&lt;User&gt;() &#123;</div><div class="line">        <span class="meta">@Override</span></div><div class="line">        <span class="function"><span class="keyword">public</span> User <span class="title">load</span><span class="params">()</span> </span>&#123;</div><div class="line">            <span class="keyword">return</span> getUserFromDB(id);</div><div class="line">        &#125;</div><div class="line">    &#125;);</div><div class="line">    <span class="keyword">return</span> user;</div><div class="line">&#125;</div></pre></td></tr></table></figure></p>
+<p>ok，暂时到这。</p>
+
+        
+        </div>
+		
+			<div id="donate" style="text-align:center">
+			<div class="post-donate" style="margin-bottom: 30px;margin-top: 10px;">
+    <div id="donate_board" class="donate_bar center">
+        <a id="btn_donate" class="btn_donate" href="javascript:;" title="donate"></a>
+        <span class="donate_txt">
+           欣赏此文？求鼓励，求支持！
+        </span>
+        <br>
+    </div>
+    <div id="donate_guide" class="donate_bar donate_bar2 center hidden">
+        <img src="/css/images/alipay.jpg" id="weixin" title="alipay doante" alt="alipay doante">
+        <img src="/css/images/wechatpay.jpg" title="wechatpay donate" id="zhifubao" alt="echatpay donate">
+    </div>
+    <script type="text/javascript">
+        $('#weixin').hover()
+        document.getElementById('btn_donate').onclick = function () {
+            $('#donate_board').addClass('hidden');
+            $('#donate_guide').removeClass('hidden');
+        }
+
+    </script>
+</div>
+			</div>
+		
+        <footer class="article-footer">
+            
+            <div class="share-container">
+
+
+    <div class="bdsharebuttonbox">
+    <a href="#" class="bds_more" data-cmd="more">分享到：</a>
+	<a href="#" class="bds_weixin" data-cmd="weixin" title="分享到微信">微信</a>
+    <a href="#" class="bds_tsina" data-cmd="tsina" title="分享到新浪微博">微博</a>
+	<!--
+    <a href="#" class="bds_tqq" data-cmd="tqq" title="分享到腾讯微博">腾讯微博</a>
+    <a href="#" class="bds_renren" data-cmd="renren" title="分享到人人网">人人网</a>
+	<a href="#" class="bds_qzone" data-cmd="qzone" title="分享到QQ空间">QQ空间</a>
+	-->
+    
+</div>
+<script>
+window._bd_share_config={"common":{"bdSnsKey":{},"bdText":"","bdMini":"2","bdMiniList":false,"bdPic":"","bdStyle":"0","bdSize":"16"},"share":{"bdSize":16}};with(document)0[(getElementsByTagName('head')[0]||body).appendChild(createElement('script')).src='/static/api/js/share.js?v=89860593.js?cdnversion='+~(-new Date()/36e5)];
+</script>
+<style>
+    .bdshare_popup_box {
+        border-radius: 4px;
+        border: #e1e1e1 solid 1px;
+    }
+    .bdshare-button-style0-16 a,
+    .bdshare-button-style0-16 .bds_more {
+        padding-left: 20px;
+        margin: 6px 10px 6px 0;
+    }
+    .bdshare_dialog_list a,
+    .bdshare_popup_list a,
+    .bdshare_popup_bottom a {
+        font-family: 'Microsoft Yahei';
+    }
+    .bdshare_popup_top {
+        display: none;
+    }
+    .bdshare_popup_bottom {
+        height: auto;
+        padding: 5px;
+    }
+</style>
+
+
+</div>
+
+            
+            
+    
+        <a href="https://minibox.coding.me/2016/04/20/缓存穿透及雪崩之常见解决方案/#comments" class="article-comment-link ds-thread-count" data-thread-key="https://minibox.coding.me/2016/04/20/缓存穿透及雪崩之常见解决方案/">评论</a>
+    
+
+        </footer>
+    </div>
+    
+        
+<nav id="article-nav">
+    
+        <a href="/2016/04/29/Hexo-icarus主题小功能设置/" id="article-nav-newer" class="article-nav-link-wrap">
+            <strong class="article-nav-caption">上一篇</strong>
+            <div class="article-nav-title">
+                
+                    Hexo icarus主题小功能设置
+                
+            </div>
+        </a>
+    
+    
+        <a href="/2016/04/10/Git多ssh-key配置/" id="article-nav-older" class="article-nav-link-wrap">
+            <strong class="article-nav-caption">下一篇</strong>
+            <div class="article-nav-title">Git多ssh-key配置</div>
+        </a>
+    
+</nav>
+
+
+    
+</article>
+
+
+    
+    <section id="comments">
+    
+        
+    <div class="ds-thread" data-thread-key="2016/04/20/缓存穿透及雪崩之常见解决方案/" data-title="缓存穿透及雪崩之常见解决方案" data-url="https://minibox.coding.me/2016/04/20/缓存穿透及雪崩之常见解决方案/"></div>
+    <style>
+        #ds-thread #ds-reset .ds-textarea-wrapper {
+            background: none;
+        }
+        #ds-reset .ds-avatar img {
+            box-shadow: none;
+        }
+        #ds-reset .ds-gradient-bg {
+            background: #f7f7f7;
+        }
+        #ds-thread #ds-reset li.ds-tab a {
+            border-radius: 3px;
+        }
+        #ds-thread #ds-reset .ds-post-button {
+            color: white;
+            border: none;
+            box-shadow: none;
+            background: #d32;
+            text-shadow: none;
+            font-weight: normal;
+            font-family: 'Microsoft Yahei';
+        }
+        #ds-thread #ds-reset .ds-post-button:hover {
+            color: white;
+            background: #DE594C;
+        }
+        #ds-thread #ds-reset .ds-post-button:active {
+            background: #d32;
+        }
+        #ds-smilies-tooltip ul.ds-smilies-tabs li a.ds-current {
+            color: white;
+            background: #d32;
+            box-shadow: none;
+            text-shadow: none;
+            font-weight: normal;
+        }
+    </style>
+
+    
+    </section>
+
+</section>
+            
+                <aside id="sidebar">
+   
+        
+    <div class="widget-wrap">
+        <h3 class="widget-title"><i class="fa fa-book"></i>最新文章</h3>
+        <div class="widget">
+            <ul id="recent-post" class="">
+                
+                    <li>
+                        
+                        <div class="item-thumbnail">
+                            <a href="/2016/04/29/Hexo-icarus主题小功能设置/" class="thumbnail">
+    
+    
+        <span class="thumbnail-image thumbnail-none"></span>
+    
+</a>
+
+                        </div>
+                        
+                        <div class="item-inner">
+                            <p class="item-category"><a class="article-category-link" href="/categories/杂谈/">杂谈</a></p>
+                            <p class="item-title"><a href="/2016/04/29/Hexo-icarus主题小功能设置/" class="title">Hexo icarus主题小功能设置</a></p>
+                            <p class="item-date"><time datetime="2016-04-29T03:05:56.000Z" itemprop="datePublished">2016-04-29</time></p>
+                        </div>
+                    </li>
+                
+                    <li>
+                        
+                        <div class="item-thumbnail">
+                            <a href="/2016/04/20/缓存穿透及雪崩之常见解决方案/" class="thumbnail">
+    
+    
+        <span class="thumbnail-image thumbnail-none"></span>
+    
+</a>
+
+                        </div>
+                        
+                        <div class="item-inner">
+                            <p class="item-category"><a class="article-category-link" href="/categories/redis/">redis</a></p>
+                            <p class="item-title"><a href="/2016/04/20/缓存穿透及雪崩之常见解决方案/" class="title">缓存穿透及雪崩之常见解决方案</a></p>
+                            <p class="item-date"><time datetime="2016-04-20T07:33:49.000Z" itemprop="datePublished">2016-04-20</time></p>
+                        </div>
+                    </li>
+                
+                    <li>
+                        
+                        <div class="item-thumbnail">
+                            <a href="/2016/04/10/Git多ssh-key配置/" class="thumbnail">
+    
+    
+        <span class="thumbnail-image thumbnail-none"></span>
+    
+</a>
+
+                        </div>
+                        
+                        <div class="item-inner">
+                            <p class="item-category"><a class="article-category-link" href="/categories/git/">git</a></p>
+                            <p class="item-title"><a href="/2016/04/10/Git多ssh-key配置/" class="title">Git多ssh-key配置</a></p>
+                            <p class="item-date"><time datetime="2016-04-10T06:40:54.000Z" itemprop="datePublished">2016-04-10</time></p>
+                        </div>
+                    </li>
+                
+            </ul>
+        </div>
+    </div>
+
+    
+        
+    <div class="widget-wrap">
+        <h3 class="widget-title"><i class="fa fa-folder"></i>分类</h3>
+        <div class="widget">
+            <ul class="category-list"><li class="category-list-item"><a class="category-list-link" href="/categories/git/">git</a><span class="category-list-count">1</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/redis/">redis</a><span class="category-list-count">3</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/杂谈/">杂谈</a><span class="category-list-count">3</span></li></ul>
+        </div>
+    </div>
+
+    
+        
+    <div class="widget-wrap">
+        <h3 class="widget-title"><i class="fa fa-archive"></i>归档</h3>
+        <div class="widget">
+            <ul class="archive-list"><li class="archive-list-item"><a class="archive-list-link" href="/archives/2016/04/">四月 2016</a><span class="archive-list-count">3</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2016/03/">三月 2016</a><span class="archive-list-count">3</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2015/09/">九月 2015</a><span class="archive-list-count">1</span></li></ul>
+        </div>
+    </div>
+
+    
+        
+    <div class="widget-wrap">
+        <h3 class="widget-title"><i class="fa fa-tags"></i>标签云</h3>
+        <div class="widget tagcloud">
+            <a href="/tags/git/" style="font-size: 10px;">git</a> <a href="/tags/hexo/" style="font-size: 15px;">hexo</a> <a href="/tags/redis/" style="font-size: 20px;">redis</a> <a href="/tags/sentinel/" style="font-size: 10px;">sentinel</a> <a href="/tags/sentinel原理/" style="font-size: 10px;">sentinel原理</a> <a href="/tags/spring-data-redis/" style="font-size: 10px;">spring-data-redis</a> <a href="/tags/打赏/" style="font-size: 10px;">打赏</a> <a href="/tags/缓存穿透/" style="font-size: 10px;">缓存穿透</a> <a href="/tags/缓存雪崩/" style="font-size: 10px;">缓存雪崩</a>
+        </div>
+    </div>
+
+    
+        
+    <div class="widget-wrap widget-list">
+        <h3 class="widget-title"><i class="fa fa-link"></i>链接</h3>
+        <div class="widget">
+            <ul>
+                
+                    <li>
+                        <a href="http://www.liaoxuefeng.com" target="_blank">廖雪峰</a>
+                    </li>
+                
+                    <li>
+                        <a href="http://www.ruanyifeng.com/blog/" target="_blank">阮一峰</a>
+                    </li>
+                
+                    <li>
+                        <a href="http://coolshell.cn/" target="_blank">酷壳</a>
+                    </li>
+                
+                    <li>
+                        <a href="http://jinnianshilongnian.iteye.com/" target="_blank">开涛的博客</a>
+                    </li>
+                
+            </ul>
+        </div>
+    </div>
+
+
+    
+    <div id="toTop" class="fa fa-angle-up"></div>
+</aside>
+            
+        </div>
+        <footer id="footer">
+    <div class="outer">
+        <div id="footer-info" class="inner">
+            &copy; 2017 Mickole Chou<br>
+            Powered by <a href="http://hexo.io/" target="_blank">Hexo</a>. Theme by <a href="http://github.com/ppoffice">PPOffice</a>
+			.
+Analyse with <script src="https://s4.cnzz.com/z_stat.php?id=1261681714&web_id=1261681714" language="JavaScript"></script>
+
+        </div>
+    </div>
+</footer>
+        
+    
+    <script type="text/javascript">
+    var duoshuoQuery = {short_name:'mickolechou'};
+    (function() {
+    var ds = document.createElement('script');
+    ds.type = 'text/javascript';ds.async = true;
+    ds.src = (document.location.protocol == 'https:' ? 'https:' : 'http:') + '//static.duoshuo.com/embed.js';
+    ds.charset = 'UTF-8';
+    (document.getElementsByTagName('head')[0]
+    || document.getElementsByTagName('body')[0]).appendChild(ds);
+    })();
+    </script>
+
+
+
+
+    
+        <script src="/libs/lightgallery/js/lightgallery.min.js"></script>
+        <script src="/libs/lightgallery/js/lg-thumbnail.min.js"></script>
+        <script src="/libs/lightgallery/js/lg-pager.min.js"></script>
+        <script src="/libs/lightgallery/js/lg-autoplay.min.js"></script>
+        <script src="/libs/lightgallery/js/lg-fullscreen.min.js"></script>
+        <script src="/libs/lightgallery/js/lg-zoom.min.js"></script>
+        <script src="/libs/lightgallery/js/lg-hash.min.js"></script>
+        <script src="/libs/lightgallery/js/lg-share.min.js"></script>
+        <script src="/libs/lightgallery/js/lg-video.min.js"></script>
+    
+    
+        <script src="/libs/justified-gallery/jquery.justifiedGallery.min.js"></script>
+    
+    
+
+
+
+<!-- Custom Scripts -->
+<script src="/js/main.js"></script>
+
+    </div>
+</body>
+</html>

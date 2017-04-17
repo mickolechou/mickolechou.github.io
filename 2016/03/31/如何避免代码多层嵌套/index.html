@@ -1,0 +1,618 @@
+<!DOCTYPE html>
+<html lang=zh>
+<head>
+	
+	
+        <meta name="baidu-site-verification" content="IqiX1RtnVh" />
+    
+	
+        <meta name="google-site-verification" content="2AHl5z8Q4Anxqs-qCvhBuOQKmYkXWH2j5pLi8NZbV-U" />
+    
+    <meta charset="utf-8">
+    
+    <title>如何避免代码多层嵌套 | 迷你盒</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1" />
+    <meta name="description" content="平时写代码过程中，过多if判断语句的存在导致代码产生多层嵌套，影响代码可读性。">
+<meta property="og:type" content="article">
+<meta property="og:title" content="如何避免代码多层嵌套">
+<meta property="og:url" content="https://minibox.coding.me/2016/03/31/如何避免代码多层嵌套/index.html">
+<meta property="og:site_name" content="迷你盒">
+<meta property="og:description" content="平时写代码过程中，过多if判断语句的存在导致代码产生多层嵌套，影响代码可读性。">
+<meta property="og:updated_time" content="2017-04-17T02:08:21.490Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="如何避免代码多层嵌套">
+<meta name="twitter:description" content="平时写代码过程中，过多if判断语句的存在导致代码产生多层嵌套，影响代码可读性。">
+    
+
+    
+        <link rel="alternate" href="https://minibox.coding.me/atom.xml" title="迷你盒" type="application/atom+xml" />
+    
+
+    
+        <link rel="icon" href="/css/images/fav.png# path to favicon" />
+    
+
+    <link rel="stylesheet" href="/libs/font-awesome/css/font-awesome.min.css">
+    <link rel="stylesheet" href="/libs/open-sans/styles.css">
+    <link rel="stylesheet" href="/libs/source-code-pro/styles.css">
+
+    <link rel="stylesheet" href="/css/style.css">
+
+    <script src="/libs/jquery/2.1.3/jquery.min.js"></script>
+    
+    
+        <link rel="stylesheet" href="/libs/lightgallery/css/lightgallery.min.css">
+    
+    
+        <link rel="stylesheet" href="/libs/justified-gallery/justifiedGallery.min.css">
+    
+    
+    
+    
+
+
+</head>
+
+<body>
+    <div id="container">
+        <header id="header">
+    <div id="header-main" class="header-inner">
+        <div class="outer">
+            <a href="/" id="logo">
+                <i class="logo"></i>
+                <span class="site-title">迷你盒</span>
+            </a>
+            <nav id="main-nav">
+                
+                    <a class="main-nav-link" href="/."><i class="fa fa-home"></i>主页</a>
+                
+                    <a class="main-nav-link" href="/archives"><i class="fa fa-archive"></i>归档</a>
+                
+                    <a class="main-nav-link" href="/categories"><i class="fa fa-folder"></i>分类</a>
+                
+                    <a class="main-nav-link" href="/tags"><i class="fa fa-tags"></i>标签</a>
+                
+                    <a class="main-nav-link" href="/about"><i class="fa fa-user"></i>关于</a>
+                
+            </nav>
+            
+                
+                <nav id="sub-nav">
+                    <div class="profile" id="profile-nav">
+                        <a id="profile-anchor" href="javascript:;">
+                            <img class="avatar" src="/css/images/st.png" />
+                            <i class="fa fa-caret-down"></i>
+                        </a>
+                    </div>
+                </nav>
+            
+            <div id="search-form-wrap">
+
+    <form class="search-form">
+        <input type="text" class="ins-search-input search-form-input" placeholder="搜索" />
+        <button type="submit" class="search-form-submit"></button>
+    </form>
+    <div class="ins-search">
+    <div class="ins-search-mask"></div>
+    <div class="ins-search-container">
+        <div class="ins-input-wrapper">
+            <input type="text" class="ins-search-input" placeholder="想要查找什么..." />
+            <span class="ins-close ins-selectable"><i class="fa fa-times-circle"></i></span>
+        </div>
+        <div class="ins-section-wrapper">
+            <div class="ins-section-container"></div>
+        </div>
+    </div>
+</div>
+<script>
+(function (window) {
+    var INSIGHT_CONFIG = {
+        TRANSLATION: {
+            POSTS: '文章',
+            PAGES: '页面',
+            CATEGORIES: '分类',
+            TAGS: '标签',
+            UNTITLED: '(未命名)',
+        },
+        ROOT_URL: '/',
+        CONTENT_URL: '/content.json',
+    };
+    window.INSIGHT_CONFIG = INSIGHT_CONFIG;
+})(window);
+</script>
+<script src="/js/insight.js"></script>
+
+</div>
+        </div>
+    </div>
+    <div id="main-nav-mobile" class="header-sub header-inner">
+        <table class="menu outer">
+            <tr>
+                
+                    <td><a class="main-nav-link" href="/."><i class="fa fa-home"><span class="nav-link-text">主页</span></a></td>
+                
+                    <td><a class="main-nav-link" href="/archives"><i class="fa fa-archive"><span class="nav-link-text">归档</span></a></td>
+                
+                    <td><a class="main-nav-link" href="/categories"><i class="fa fa-folder"><span class="nav-link-text">分类</span></a></td>
+                
+                    <td><a class="main-nav-link" href="/tags"><i class="fa fa-tags"><span class="nav-link-text">标签</span></a></td>
+                
+                    <td><a class="main-nav-link" href="/about"><i class="fa fa-user"><span class="nav-link-text">关于</span></a></td>
+                
+                <td>
+                    
+    <div class="search-form">
+        <input type="text" class="ins-search-input search-form-input" placeholder="搜索" />
+    </div>
+
+                </td>
+            </tr>
+        </table>
+    </div>
+</header>
+
+        <div class="outer">
+            
+                
+
+<aside id="profile">
+    <div class="inner profile-inner">
+        <div class="base-info profile-block">
+            <img id="avatar" src="/css/images/st.png" />
+            <h2 id="name">Mickole Chou</h2>
+            <h3 id="title">Developer &amp; Writer</h3>
+            <span id="location"><i class="fa fa-map-marker"></i>Chengdu, China</span>
+            <a id="follow" target="_blank" href="https://github.com/mickolechou">关注我</a>
+        </div>
+        <div class="article-info profile-block">
+            <div class="article-info-block">
+                7
+                <span>文章</span>
+            </div>
+            <div class="article-info-block">
+                9
+                <span>标签</span>
+            </div>
+        </div>
+        
+        <div class="profile-block social-links">
+            <table>
+                <tr>
+                    
+                    
+                    <td>
+                        <a href="https://github.com/mickolechou" target="_blank" title="github" class=tooltip>
+                            <i class="fa fa-github"></i>
+                        </a>
+                    </td>
+                    
+                    <td>
+                        <a href="/" target="_blank" title="weibo" class=tooltip>
+                            <i class="fa fa-weibo"></i>
+                        </a>
+                    </td>
+                    
+                    <td>
+                        <a href="/" target="_blank" title="weixin" class=tooltip>
+                            <i class="fa fa-weixin"></i>
+                        </a>
+                    </td>
+                    
+                    <td>
+                        <a href="https://minibox.coding.me/atom.xml" target="_blank" title="rss" class=tooltip>
+                            <i class="fa fa-rss"></i>
+                        </a>
+                    </td>
+                    
+                </tr>
+            </table>
+        </div>
+        
+    </div>
+</aside>
+
+            
+            <section id="main"><article id="post-如何避免代码多层嵌套" class="article article-type-post" itemscope itemprop="blogPost">
+    <div class="article-inner">
+        
+        
+            <header class="article-header">
+                
+    
+        <h1 class="article-title" itemprop="name">
+            如何避免代码多层嵌套
+        </h1>
+    
+
+                
+                    <div class="article-meta">
+                        
+    <div class="article-date">
+        <i class="fa fa-calendar"></i>
+        <a href="/2016/03/31/如何避免代码多层嵌套/">
+            <time datetime="2016-03-31T02:29:55.000Z" itemprop="datePublished">2016-03-31</time>
+        </a>
+    </div>
+
+
+                        
+    <div class="article-category">
+    	<i class="fa fa-folder"></i>
+        <a class="article-category-link" href="/categories/杂谈/">杂谈</a>
+    </div>
+
+                        
+                    </div>
+                
+            </header>
+        
+        
+        <div class="article-entry" itemprop="articleBody">
+        
+            
+                <div id="toc" class="toc-article">
+                <strong class="toc-title">文章目录</strong>
+                    <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#if作用"><span class="toc-number">1.</span> <span class="toc-text">if作用</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#if用于参数合法性校验"><span class="toc-number">2.</span> <span class="toc-text">if用于参数合法性校验</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#使用break-continue"><span class="toc-number">2.1.</span> <span class="toc-text">使用break,continue</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#使用异常"><span class="toc-number">2.2.</span> <span class="toc-text">使用异常</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#if用于控制业务流程"><span class="toc-number">3.</span> <span class="toc-text">if用于控制业务流程</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#使用多态"><span class="toc-number">3.1.</span> <span class="toc-text">使用多态</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#使用枚举"><span class="toc-number">3.2.</span> <span class="toc-text">使用枚举</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#使用map"><span class="toc-number">3.3.</span> <span class="toc-text">使用map</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#抽取方法"><span class="toc-number">3.4.</span> <span class="toc-text">抽取方法</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#参考"><span class="toc-number">3.5.</span> <span class="toc-text">参考</span></a></li></ol></li></ol>
+                </div>
+            
+            <blockquote>
+<p>平时写代码过程中，过多if判断语句的存在导致代码产生多层嵌套，影响代码可读性。</p>
+</blockquote>
+<a id="more"></a>
+<h2 id="if作用"><a href="#if作用" class="headerlink" title="if作用"></a>if作用</h2><p>代码中if主要用于控制代码流程：</p>
+<ol>
+<li>参数合法性校验</li>
+<li>业务流程走向</li>
+</ol>
+<h2 id="if用于参数合法性校验"><a href="#if用于参数合法性校验" class="headerlink" title="if用于参数合法性校验"></a>if用于参数合法性校验</h2><p>当if用于参数合法性校验时，避免多层嵌套，可采用以下方式：</p>
+<h3 id="使用break-continue"><a href="#使用break-continue" class="headerlink" title="使用break,continue"></a>使用break,continue</h3><p>有些人写代码，习惯通过if(condition){}判真的方式控制流程走向，这种方式会造成代码多层嵌套。<br>如果我们反过来，采用if(!condition){return; break; continue}判假的方式提前退出嵌套则可减少代码嵌套。进入方法，参数不合法，提前return；进入循环，不满足则break退出循环或continue进行快速进入下一次循环。</p>
+<h3 id="使用异常"><a href="#使用异常" class="headerlink" title="使用异常"></a>使用异常</h3><p>一般情况下，我们使用if主要是为了参数校验，一次又一次的if判断，导致多层嵌套的出现，但又不能不做，很是尴尬。</p>
+<p>这种情况，可考虑使用异常统一捕获，try代码块中不做参数校验，所有NPE异常交由外层catch。<br>当然，使用try..catch，一旦异常触发，可能会降低程序的性能；如果做参数检验仅仅是为了避免极端情况的崩溃，在大部分情况下不会发生异常，那么可以放心使用。</p>
+<h2 id="if用于控制业务流程"><a href="#if用于控制业务流程" class="headerlink" title="if用于控制业务流程"></a>if用于控制业务流程</h2><h3 id="使用多态"><a href="#使用多态" class="headerlink" title="使用多态"></a>使用多态</h3><p>比如以下代码：根据type调用不同通知接口给用户发送通知<br><figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div></pre></td><td class="code"><pre><div class="line"><span class="function"><span class="keyword">private</span> <span class="keyword">void</span> <span class="title">sendNotify</span><span class="params">(Integer type, String msg)</span> </span>&#123;</div><div class="line">    <span class="keyword">if</span> (type == <span class="number">1</span>) &#123;</div><div class="line">        sendEmail(msg);</div><div class="line">    &#125; <span class="keyword">else</span> <span class="keyword">if</span> (type == <span class="number">2</span>)&#123;</div><div class="line">        sendMsg(msg);</div><div class="line">    &#125; <span class="keyword">else</span> <span class="keyword">if</span> (type == <span class="number">3</span>)&#123;</div><div class="line">        sendWechat(msg);</div><div class="line">    &#125;</div><div class="line">&#125;</div><div class="line"></div><div class="line"><span class="function"><span class="keyword">private</span> <span class="keyword">void</span> <span class="title">sendWechat</span><span class="params">(String msg)</span> </span>&#123;</div><div class="line">    System.out.println(<span class="string">"wechat"</span> + msg);</div><div class="line">&#125;</div><div class="line"></div><div class="line"><span class="function"><span class="keyword">private</span> <span class="keyword">void</span> <span class="title">sendMsg</span><span class="params">(String msg)</span> </span>&#123;</div><div class="line">    System.out.println(<span class="string">"message"</span> + msg);</div><div class="line">&#125;</div><div class="line"></div><div class="line"><span class="function"><span class="keyword">private</span> <span class="keyword">void</span> <span class="title">sendEmail</span><span class="params">(String msg)</span> </span>&#123;</div><div class="line">    System.out.println(<span class="string">"email"</span> + msg);</div><div class="line">&#125;</div></pre></td></tr></table></figure></p>
+<p>多态解决：<br>抽象出一个基类<br><figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">public</span> <span class="keyword">abstract</span> <span class="class"><span class="keyword">class</span> <span class="title">SendNotify</span> </span>&#123;</div><div class="line"></div><div class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">send</span><span class="params">(String msg)</span> </span>&#123;</div><div class="line">        System.out.println(<span class="string">"start send"</span>);</div><div class="line">        doSend(msg);</div><div class="line">        System.out.println(<span class="string">"end send"</span>);</div><div class="line">    &#125;</div><div class="line"></div><div class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">abstract</span> <span class="keyword">void</span> <span class="title">doSend</span><span class="params">(String msg)</span></span>;</div><div class="line"></div><div class="line">&#125;</div></pre></td></tr></table></figure></p>
+<p>子类继承父类，同时自己实现具体的发送通知操作<br><figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">SendEmial</span> <span class="keyword">extends</span> <span class="title">SendNotify</span> </span>&#123;</div><div class="line">    <span class="meta">@Override</span></div><div class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">doSend</span><span class="params">(String msg)</span> </span>&#123;</div><div class="line">        System.out.println(<span class="string">"email"</span> + msg);</div><div class="line">    &#125;</div><div class="line">&#125;</div><div class="line"></div><div class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">SendMsg</span> <span class="keyword">extends</span> <span class="title">SendNotify</span> </span>&#123;</div><div class="line">    <span class="meta">@Override</span></div><div class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">doSend</span><span class="params">(String msg)</span> </span>&#123;</div><div class="line">        System.out.println(<span class="string">"message"</span> + msg);</div><div class="line"></div><div class="line">    &#125;</div><div class="line">&#125;</div><div class="line"></div><div class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">SendWechat</span> <span class="keyword">extends</span> <span class="title">SendNotify</span> </span>&#123;</div><div class="line">    <span class="meta">@Override</span></div><div class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">doSend</span><span class="params">(String msg)</span> </span>&#123;</div><div class="line">        System.out.println(<span class="string">"wechat"</span> + msg);</div><div class="line"></div><div class="line">    &#125;</div><div class="line">&#125;</div></pre></td></tr></table></figure></p>
+<p>测试：<br><figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div></pre></td><td class="code"><pre><div class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">testSendNotify</span><span class="params">()</span> </span>&#123;</div><div class="line">    <span class="comment">//采用双括号初始化赋值</span></div><div class="line">    Map&lt;Integer, SendNotify&gt; sendNotifyMap = <span class="keyword">new</span> HashMap() &#123;&#123;</div><div class="line">        put(<span class="number">1</span>, <span class="keyword">new</span> SendEmial());</div><div class="line">        put(<span class="number">2</span>, <span class="keyword">new</span> SendMsg());</div><div class="line">        put(<span class="number">3</span>, <span class="keyword">new</span> SendWechat());</div><div class="line">    &#125;&#125; ;</div><div class="line"></div><div class="line">    SendNotify sendNotify = sendNotifyMap.get(<span class="number">2</span>);</div><div class="line">    sendNotify.send(<span class="string">"hello"</span>);</div><div class="line">&#125;</div></pre></td></tr></table></figure></p>
+<h3 id="使用枚举"><a href="#使用枚举" class="headerlink" title="使用枚举"></a>使用枚举</h3><figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">public</span> <span class="keyword">enum</span> NotifyEnum &#123;</div><div class="line">    Emial(<span class="number">1</span>, SendEmial.class), Msg(<span class="number">2</span>, SendMsg.class), Wechat(<span class="number">3</span>, SendWechat.class);</div><div class="line"></div><div class="line">    <span class="keyword">private</span> Integer type;</div><div class="line">    <span class="keyword">private</span> Class clazz;</div><div class="line"></div><div class="line">    NotifyEnum(<span class="keyword">int</span> type, Class clazz) &#123;</div><div class="line">        <span class="keyword">this</span>.type = type;</div><div class="line">        <span class="keyword">this</span>.clazz = clazz;</div><div class="line">    &#125;</div><div class="line"></div><div class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">static</span> NotifyEnum <span class="title">find</span><span class="params">(<span class="keyword">int</span> type)</span> </span>&#123;</div><div class="line">        <span class="keyword">for</span> (NotifyEnum notify : values()) &#123;</div><div class="line">            <span class="keyword">if</span> (notify.type == type) &#123;</div><div class="line">                <span class="keyword">return</span> notify;</div><div class="line">            &#125;</div><div class="line">        &#125;</div><div class="line">        <span class="keyword">return</span> <span class="keyword">null</span>;</div><div class="line">    &#125;</div><div class="line"></div><div class="line">    <span class="function"><span class="keyword">public</span> Integer <span class="title">getType</span><span class="params">()</span> </span>&#123;</div><div class="line">        <span class="keyword">return</span> type;</div><div class="line">    &#125;</div><div class="line"></div><div class="line">    <span class="function"><span class="keyword">public</span> Class <span class="title">getClazz</span><span class="params">()</span> </span>&#123;</div><div class="line">        <span class="keyword">return</span> clazz;</div><div class="line">    &#125;</div><div class="line">&#125;</div></pre></td></tr></table></figure>
+<p>测试：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div></pre></td><td class="code"><pre><div class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">testEnumSendNotify</span><span class="params">()</span> <span class="keyword">throws</span> IllegalAccessException, InstantiationException </span>&#123;</div><div class="line">    NotifyEnum notifyEnum = NotifyEnum.find(<span class="number">3</span>);</div><div class="line">    SendNotify notify = (SendNotify)notifyEnum.getClazz().newInstance();</div><div class="line">    notify.send(<span class="string">"world"</span>);</div><div class="line">&#125;</div></pre></td></tr></table></figure>
+<h3 id="使用map"><a href="#使用map" class="headerlink" title="使用map"></a>使用map</h3><p>通过K-V的方式存入map，调用时不用if判断，跟枚举类似。</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div></pre></td><td class="code"><pre><div class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">testSendNotify</span><span class="params">()</span> </span>&#123;</div><div class="line">    Map&lt;Integer, SendNotify&gt; sendNotifyMap = <span class="keyword">new</span> HashMap() ;</div><div class="line">    sendNotifyMap.put(<span class="number">1</span>, <span class="keyword">new</span> SendEmial());</div><div class="line">    sendNotifyMap.put(<span class="number">2</span>, <span class="keyword">new</span> SendMsg());</div><div class="line">    sendNotifyMap.put(<span class="number">3</span>, <span class="keyword">new</span> SendWechat());</div><div class="line"></div><div class="line">    SendNotify sendNotify = sendNotifyMap.get(<span class="number">2</span>);</div><div class="line">    sendNotify.send(<span class="string">"hello"</span>);</div><div class="line">&#125;</div></pre></td></tr></table></figure>
+<h3 id="抽取方法"><a href="#抽取方法" class="headerlink" title="抽取方法"></a>抽取方法</h3><p>通过抽取方法可将多层多层嵌套分配到各个方法中去，减少主方法的嵌套层数，提高可读性。</p>
+<h3 id="参考"><a href="#参考" class="headerlink" title="参考"></a>参考</h3><p><a href="https://zhuanlan.zhihu.com/p/20573365" target="_blank" rel="external">编写优美的代码之减少嵌套</a></p>
+
+        
+        </div>
+		
+			<div id="donate" style="text-align:center">
+			<div class="post-donate" style="margin-bottom: 30px;margin-top: 10px;">
+    <div id="donate_board" class="donate_bar center">
+        <a id="btn_donate" class="btn_donate" href="javascript:;" title="donate"></a>
+        <span class="donate_txt">
+           欣赏此文？求鼓励，求支持！
+        </span>
+        <br>
+    </div>
+    <div id="donate_guide" class="donate_bar donate_bar2 center hidden">
+        <img src="/css/images/alipay.jpg" id="weixin" title="alipay doante" alt="alipay doante">
+        <img src="/css/images/wechatpay.jpg" title="wechatpay donate" id="zhifubao" alt="echatpay donate">
+    </div>
+    <script type="text/javascript">
+        $('#weixin').hover()
+        document.getElementById('btn_donate').onclick = function () {
+            $('#donate_board').addClass('hidden');
+            $('#donate_guide').removeClass('hidden');
+        }
+
+    </script>
+</div>
+			</div>
+		
+        <footer class="article-footer">
+            
+            <div class="share-container">
+
+
+    <div class="bdsharebuttonbox">
+    <a href="#" class="bds_more" data-cmd="more">分享到：</a>
+	<a href="#" class="bds_weixin" data-cmd="weixin" title="分享到微信">微信</a>
+    <a href="#" class="bds_tsina" data-cmd="tsina" title="分享到新浪微博">微博</a>
+	<!--
+    <a href="#" class="bds_tqq" data-cmd="tqq" title="分享到腾讯微博">腾讯微博</a>
+    <a href="#" class="bds_renren" data-cmd="renren" title="分享到人人网">人人网</a>
+	<a href="#" class="bds_qzone" data-cmd="qzone" title="分享到QQ空间">QQ空间</a>
+	-->
+    
+</div>
+<script>
+window._bd_share_config={"common":{"bdSnsKey":{},"bdText":"","bdMini":"2","bdMiniList":false,"bdPic":"","bdStyle":"0","bdSize":"16"},"share":{"bdSize":16}};with(document)0[(getElementsByTagName('head')[0]||body).appendChild(createElement('script')).src='/static/api/js/share.js?v=89860593.js?cdnversion='+~(-new Date()/36e5)];
+</script>
+<style>
+    .bdshare_popup_box {
+        border-radius: 4px;
+        border: #e1e1e1 solid 1px;
+    }
+    .bdshare-button-style0-16 a,
+    .bdshare-button-style0-16 .bds_more {
+        padding-left: 20px;
+        margin: 6px 10px 6px 0;
+    }
+    .bdshare_dialog_list a,
+    .bdshare_popup_list a,
+    .bdshare_popup_bottom a {
+        font-family: 'Microsoft Yahei';
+    }
+    .bdshare_popup_top {
+        display: none;
+    }
+    .bdshare_popup_bottom {
+        height: auto;
+        padding: 5px;
+    }
+</style>
+
+
+</div>
+
+            
+            
+    
+        <a href="https://minibox.coding.me/2016/03/31/如何避免代码多层嵌套/#comments" class="article-comment-link ds-thread-count" data-thread-key="https://minibox.coding.me/2016/03/31/如何避免代码多层嵌套/">评论</a>
+    
+
+        </footer>
+    </div>
+    
+        
+<nav id="article-nav">
+    
+        <a href="/2016/04/10/Git多ssh-key配置/" id="article-nav-newer" class="article-nav-link-wrap">
+            <strong class="article-nav-caption">上一篇</strong>
+            <div class="article-nav-title">
+                
+                    Git多ssh-key配置
+                
+            </div>
+        </a>
+    
+    
+        <a href="/2016/03/25/Redis Sentinel原理/" id="article-nav-older" class="article-nav-link-wrap">
+            <strong class="article-nav-caption">下一篇</strong>
+            <div class="article-nav-title">Redis Sentinel原理</div>
+        </a>
+    
+</nav>
+
+
+    
+</article>
+
+
+    
+    <section id="comments">
+    
+        
+    <div class="ds-thread" data-thread-key="2016/03/31/如何避免代码多层嵌套/" data-title="如何避免代码多层嵌套" data-url="https://minibox.coding.me/2016/03/31/如何避免代码多层嵌套/"></div>
+    <style>
+        #ds-thread #ds-reset .ds-textarea-wrapper {
+            background: none;
+        }
+        #ds-reset .ds-avatar img {
+            box-shadow: none;
+        }
+        #ds-reset .ds-gradient-bg {
+            background: #f7f7f7;
+        }
+        #ds-thread #ds-reset li.ds-tab a {
+            border-radius: 3px;
+        }
+        #ds-thread #ds-reset .ds-post-button {
+            color: white;
+            border: none;
+            box-shadow: none;
+            background: #d32;
+            text-shadow: none;
+            font-weight: normal;
+            font-family: 'Microsoft Yahei';
+        }
+        #ds-thread #ds-reset .ds-post-button:hover {
+            color: white;
+            background: #DE594C;
+        }
+        #ds-thread #ds-reset .ds-post-button:active {
+            background: #d32;
+        }
+        #ds-smilies-tooltip ul.ds-smilies-tabs li a.ds-current {
+            color: white;
+            background: #d32;
+            box-shadow: none;
+            text-shadow: none;
+            font-weight: normal;
+        }
+    </style>
+
+    
+    </section>
+
+</section>
+            
+                <aside id="sidebar">
+   
+        
+    <div class="widget-wrap">
+        <h3 class="widget-title"><i class="fa fa-book"></i>最新文章</h3>
+        <div class="widget">
+            <ul id="recent-post" class="">
+                
+                    <li>
+                        
+                        <div class="item-thumbnail">
+                            <a href="/2016/04/29/Hexo-icarus主题小功能设置/" class="thumbnail">
+    
+    
+        <span class="thumbnail-image thumbnail-none"></span>
+    
+</a>
+
+                        </div>
+                        
+                        <div class="item-inner">
+                            <p class="item-category"><a class="article-category-link" href="/categories/杂谈/">杂谈</a></p>
+                            <p class="item-title"><a href="/2016/04/29/Hexo-icarus主题小功能设置/" class="title">Hexo icarus主题小功能设置</a></p>
+                            <p class="item-date"><time datetime="2016-04-29T03:05:56.000Z" itemprop="datePublished">2016-04-29</time></p>
+                        </div>
+                    </li>
+                
+                    <li>
+                        
+                        <div class="item-thumbnail">
+                            <a href="/2016/04/20/缓存穿透及雪崩之常见解决方案/" class="thumbnail">
+    
+    
+        <span class="thumbnail-image thumbnail-none"></span>
+    
+</a>
+
+                        </div>
+                        
+                        <div class="item-inner">
+                            <p class="item-category"><a class="article-category-link" href="/categories/redis/">redis</a></p>
+                            <p class="item-title"><a href="/2016/04/20/缓存穿透及雪崩之常见解决方案/" class="title">缓存穿透及雪崩之常见解决方案</a></p>
+                            <p class="item-date"><time datetime="2016-04-20T07:33:49.000Z" itemprop="datePublished">2016-04-20</time></p>
+                        </div>
+                    </li>
+                
+                    <li>
+                        
+                        <div class="item-thumbnail">
+                            <a href="/2016/04/10/Git多ssh-key配置/" class="thumbnail">
+    
+    
+        <span class="thumbnail-image thumbnail-none"></span>
+    
+</a>
+
+                        </div>
+                        
+                        <div class="item-inner">
+                            <p class="item-category"><a class="article-category-link" href="/categories/git/">git</a></p>
+                            <p class="item-title"><a href="/2016/04/10/Git多ssh-key配置/" class="title">Git多ssh-key配置</a></p>
+                            <p class="item-date"><time datetime="2016-04-10T06:40:54.000Z" itemprop="datePublished">2016-04-10</time></p>
+                        </div>
+                    </li>
+                
+            </ul>
+        </div>
+    </div>
+
+    
+        
+    <div class="widget-wrap">
+        <h3 class="widget-title"><i class="fa fa-folder"></i>分类</h3>
+        <div class="widget">
+            <ul class="category-list"><li class="category-list-item"><a class="category-list-link" href="/categories/git/">git</a><span class="category-list-count">1</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/redis/">redis</a><span class="category-list-count">3</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/杂谈/">杂谈</a><span class="category-list-count">3</span></li></ul>
+        </div>
+    </div>
+
+    
+        
+    <div class="widget-wrap">
+        <h3 class="widget-title"><i class="fa fa-archive"></i>归档</h3>
+        <div class="widget">
+            <ul class="archive-list"><li class="archive-list-item"><a class="archive-list-link" href="/archives/2016/04/">四月 2016</a><span class="archive-list-count">3</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2016/03/">三月 2016</a><span class="archive-list-count">3</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2015/09/">九月 2015</a><span class="archive-list-count">1</span></li></ul>
+        </div>
+    </div>
+
+    
+        
+    <div class="widget-wrap">
+        <h3 class="widget-title"><i class="fa fa-tags"></i>标签云</h3>
+        <div class="widget tagcloud">
+            <a href="/tags/git/" style="font-size: 10px;">git</a> <a href="/tags/hexo/" style="font-size: 15px;">hexo</a> <a href="/tags/redis/" style="font-size: 20px;">redis</a> <a href="/tags/sentinel/" style="font-size: 10px;">sentinel</a> <a href="/tags/sentinel原理/" style="font-size: 10px;">sentinel原理</a> <a href="/tags/spring-data-redis/" style="font-size: 10px;">spring-data-redis</a> <a href="/tags/打赏/" style="font-size: 10px;">打赏</a> <a href="/tags/缓存穿透/" style="font-size: 10px;">缓存穿透</a> <a href="/tags/缓存雪崩/" style="font-size: 10px;">缓存雪崩</a>
+        </div>
+    </div>
+
+    
+        
+    <div class="widget-wrap widget-list">
+        <h3 class="widget-title"><i class="fa fa-link"></i>链接</h3>
+        <div class="widget">
+            <ul>
+                
+                    <li>
+                        <a href="http://www.liaoxuefeng.com" target="_blank">廖雪峰</a>
+                    </li>
+                
+                    <li>
+                        <a href="http://www.ruanyifeng.com/blog/" target="_blank">阮一峰</a>
+                    </li>
+                
+                    <li>
+                        <a href="http://coolshell.cn/" target="_blank">酷壳</a>
+                    </li>
+                
+                    <li>
+                        <a href="http://jinnianshilongnian.iteye.com/" target="_blank">开涛的博客</a>
+                    </li>
+                
+            </ul>
+        </div>
+    </div>
+
+
+    
+    <div id="toTop" class="fa fa-angle-up"></div>
+</aside>
+            
+        </div>
+        <footer id="footer">
+    <div class="outer">
+        <div id="footer-info" class="inner">
+            &copy; 2017 Mickole Chou<br>
+            Powered by <a href="http://hexo.io/" target="_blank">Hexo</a>. Theme by <a href="http://github.com/ppoffice">PPOffice</a>
+			.
+Analyse with <script src="https://s4.cnzz.com/z_stat.php?id=1261681714&web_id=1261681714" language="JavaScript"></script>
+
+        </div>
+    </div>
+</footer>
+        
+    
+    <script type="text/javascript">
+    var duoshuoQuery = {short_name:'mickolechou'};
+    (function() {
+    var ds = document.createElement('script');
+    ds.type = 'text/javascript';ds.async = true;
+    ds.src = (document.location.protocol == 'https:' ? 'https:' : 'http:') + '//static.duoshuo.com/embed.js';
+    ds.charset = 'UTF-8';
+    (document.getElementsByTagName('head')[0]
+    || document.getElementsByTagName('body')[0]).appendChild(ds);
+    })();
+    </script>
+
+
+
+
+    
+        <script src="/libs/lightgallery/js/lightgallery.min.js"></script>
+        <script src="/libs/lightgallery/js/lg-thumbnail.min.js"></script>
+        <script src="/libs/lightgallery/js/lg-pager.min.js"></script>
+        <script src="/libs/lightgallery/js/lg-autoplay.min.js"></script>
+        <script src="/libs/lightgallery/js/lg-fullscreen.min.js"></script>
+        <script src="/libs/lightgallery/js/lg-zoom.min.js"></script>
+        <script src="/libs/lightgallery/js/lg-hash.min.js"></script>
+        <script src="/libs/lightgallery/js/lg-share.min.js"></script>
+        <script src="/libs/lightgallery/js/lg-video.min.js"></script>
+    
+    
+        <script src="/libs/justified-gallery/jquery.justifiedGallery.min.js"></script>
+    
+    
+
+
+
+<!-- Custom Scripts -->
+<script src="/js/main.js"></script>
+
+    </div>
+</body>
+</html>

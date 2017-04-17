@@ -1,0 +1,698 @@
+<!DOCTYPE html>
+<html lang=zh>
+<head>
+	
+	
+        <meta name="baidu-site-verification" content="IqiX1RtnVh" />
+    
+	
+        <meta name="google-site-verification" content="2AHl5z8Q4Anxqs-qCvhBuOQKmYkXWH2j5pLi8NZbV-U" />
+    
+    <meta charset="utf-8">
+    
+    <title>Redis Sentinel原理 | 迷你盒</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1" />
+    <meta name="description" content="本文将主要分析redis sentinel模式中sentinel（哨兵）所起作用
+
+Sentinel主要功能sentinel主要功能是在主库（master）出现问题后，实现：master存活检测、主从运行情况检测、自动failover、主从切换等高可用。redis的sentinel最小配置是一主一从，实现故障转移高可用。">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Redis Sentinel原理">
+<meta property="og:url" content="https://minibox.coding.me/2016/03/25/Redis Sentinel原理/index.html">
+<meta property="og:site_name" content="迷你盒">
+<meta property="og:description" content="本文将主要分析redis sentinel模式中sentinel（哨兵）所起作用
+
+Sentinel主要功能sentinel主要功能是在主库（master）出现问题后，实现：master存活检测、主从运行情况检测、自动failover、主从切换等高可用。redis的sentinel最小配置是一主一从，实现故障转移高可用。">
+<meta property="og:updated_time" content="2017-04-17T02:08:21.485Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="Redis Sentinel原理">
+<meta name="twitter:description" content="本文将主要分析redis sentinel模式中sentinel（哨兵）所起作用
+
+Sentinel主要功能sentinel主要功能是在主库（master）出现问题后，实现：master存活检测、主从运行情况检测、自动failover、主从切换等高可用。redis的sentinel最小配置是一主一从，实现故障转移高可用。">
+    
+
+    
+        <link rel="alternate" href="https://minibox.coding.me/atom.xml" title="迷你盒" type="application/atom+xml" />
+    
+
+    
+        <link rel="icon" href="/css/images/fav.png# path to favicon" />
+    
+
+    <link rel="stylesheet" href="/libs/font-awesome/css/font-awesome.min.css">
+    <link rel="stylesheet" href="/libs/open-sans/styles.css">
+    <link rel="stylesheet" href="/libs/source-code-pro/styles.css">
+
+    <link rel="stylesheet" href="/css/style.css">
+
+    <script src="/libs/jquery/2.1.3/jquery.min.js"></script>
+    
+    
+        <link rel="stylesheet" href="/libs/lightgallery/css/lightgallery.min.css">
+    
+    
+        <link rel="stylesheet" href="/libs/justified-gallery/justifiedGallery.min.css">
+    
+    
+    
+    
+
+
+</head>
+
+<body>
+    <div id="container">
+        <header id="header">
+    <div id="header-main" class="header-inner">
+        <div class="outer">
+            <a href="/" id="logo">
+                <i class="logo"></i>
+                <span class="site-title">迷你盒</span>
+            </a>
+            <nav id="main-nav">
+                
+                    <a class="main-nav-link" href="/."><i class="fa fa-home"></i>主页</a>
+                
+                    <a class="main-nav-link" href="/archives"><i class="fa fa-archive"></i>归档</a>
+                
+                    <a class="main-nav-link" href="/categories"><i class="fa fa-folder"></i>分类</a>
+                
+                    <a class="main-nav-link" href="/tags"><i class="fa fa-tags"></i>标签</a>
+                
+                    <a class="main-nav-link" href="/about"><i class="fa fa-user"></i>关于</a>
+                
+            </nav>
+            
+                
+                <nav id="sub-nav">
+                    <div class="profile" id="profile-nav">
+                        <a id="profile-anchor" href="javascript:;">
+                            <img class="avatar" src="/css/images/st.png" />
+                            <i class="fa fa-caret-down"></i>
+                        </a>
+                    </div>
+                </nav>
+            
+            <div id="search-form-wrap">
+
+    <form class="search-form">
+        <input type="text" class="ins-search-input search-form-input" placeholder="搜索" />
+        <button type="submit" class="search-form-submit"></button>
+    </form>
+    <div class="ins-search">
+    <div class="ins-search-mask"></div>
+    <div class="ins-search-container">
+        <div class="ins-input-wrapper">
+            <input type="text" class="ins-search-input" placeholder="想要查找什么..." />
+            <span class="ins-close ins-selectable"><i class="fa fa-times-circle"></i></span>
+        </div>
+        <div class="ins-section-wrapper">
+            <div class="ins-section-container"></div>
+        </div>
+    </div>
+</div>
+<script>
+(function (window) {
+    var INSIGHT_CONFIG = {
+        TRANSLATION: {
+            POSTS: '文章',
+            PAGES: '页面',
+            CATEGORIES: '分类',
+            TAGS: '标签',
+            UNTITLED: '(未命名)',
+        },
+        ROOT_URL: '/',
+        CONTENT_URL: '/content.json',
+    };
+    window.INSIGHT_CONFIG = INSIGHT_CONFIG;
+})(window);
+</script>
+<script src="/js/insight.js"></script>
+
+</div>
+        </div>
+    </div>
+    <div id="main-nav-mobile" class="header-sub header-inner">
+        <table class="menu outer">
+            <tr>
+                
+                    <td><a class="main-nav-link" href="/."><i class="fa fa-home"><span class="nav-link-text">主页</span></a></td>
+                
+                    <td><a class="main-nav-link" href="/archives"><i class="fa fa-archive"><span class="nav-link-text">归档</span></a></td>
+                
+                    <td><a class="main-nav-link" href="/categories"><i class="fa fa-folder"><span class="nav-link-text">分类</span></a></td>
+                
+                    <td><a class="main-nav-link" href="/tags"><i class="fa fa-tags"><span class="nav-link-text">标签</span></a></td>
+                
+                    <td><a class="main-nav-link" href="/about"><i class="fa fa-user"><span class="nav-link-text">关于</span></a></td>
+                
+                <td>
+                    
+    <div class="search-form">
+        <input type="text" class="ins-search-input search-form-input" placeholder="搜索" />
+    </div>
+
+                </td>
+            </tr>
+        </table>
+    </div>
+</header>
+
+        <div class="outer">
+            
+                
+
+<aside id="profile">
+    <div class="inner profile-inner">
+        <div class="base-info profile-block">
+            <img id="avatar" src="/css/images/st.png" />
+            <h2 id="name">Mickole Chou</h2>
+            <h3 id="title">Developer &amp; Writer</h3>
+            <span id="location"><i class="fa fa-map-marker"></i>Chengdu, China</span>
+            <a id="follow" target="_blank" href="https://github.com/mickolechou">关注我</a>
+        </div>
+        <div class="article-info profile-block">
+            <div class="article-info-block">
+                7
+                <span>文章</span>
+            </div>
+            <div class="article-info-block">
+                9
+                <span>标签</span>
+            </div>
+        </div>
+        
+        <div class="profile-block social-links">
+            <table>
+                <tr>
+                    
+                    
+                    <td>
+                        <a href="https://github.com/mickolechou" target="_blank" title="github" class=tooltip>
+                            <i class="fa fa-github"></i>
+                        </a>
+                    </td>
+                    
+                    <td>
+                        <a href="/" target="_blank" title="weibo" class=tooltip>
+                            <i class="fa fa-weibo"></i>
+                        </a>
+                    </td>
+                    
+                    <td>
+                        <a href="/" target="_blank" title="weixin" class=tooltip>
+                            <i class="fa fa-weixin"></i>
+                        </a>
+                    </td>
+                    
+                    <td>
+                        <a href="https://minibox.coding.me/atom.xml" target="_blank" title="rss" class=tooltip>
+                            <i class="fa fa-rss"></i>
+                        </a>
+                    </td>
+                    
+                </tr>
+            </table>
+        </div>
+        
+    </div>
+</aside>
+
+            
+            <section id="main"><article id="post-Redis Sentinel原理" class="article article-type-post" itemscope itemprop="blogPost">
+    <div class="article-inner">
+        
+        
+            <header class="article-header">
+                
+    
+        <h1 class="article-title" itemprop="name">
+            Redis Sentinel原理
+        </h1>
+    
+
+                
+                    <div class="article-meta">
+                        
+    <div class="article-date">
+        <i class="fa fa-calendar"></i>
+        <a href="/2016/03/25/Redis Sentinel原理/">
+            <time datetime="2016-03-25T09:49:28.000Z" itemprop="datePublished">2016-03-25</time>
+        </a>
+    </div>
+
+
+                        
+    <div class="article-category">
+    	<i class="fa fa-folder"></i>
+        <a class="article-category-link" href="/categories/redis/">redis</a>
+    </div>
+
+                        
+    <div class="article-tag">
+        <i class="fa fa-tag"></i>
+        <a class="tag-link" href="/tags/redis/">redis</a>, <a class="tag-link" href="/tags/sentinel原理/">sentinel原理</a>
+    </div>
+
+                    </div>
+                
+            </header>
+        
+        
+        <div class="article-entry" itemprop="articleBody">
+        
+            
+                <div id="toc" class="toc-article">
+                <strong class="toc-title">文章目录</strong>
+                    <ol class="toc"><li class="toc-item toc-level-3"><a class="toc-link" href="#Sentinel主要功能"><span class="toc-number">1.</span> <span class="toc-text">Sentinel主要功能</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#关于redis-sentinel的主观下线和客观下线"><span class="toc-number">2.</span> <span class="toc-text">关于redis sentinel的主观下线和客观下线</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#Sentinel定时执行的操作"><span class="toc-number">3.</span> <span class="toc-text">Sentinel定时执行的操作</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#自动发现哨兵（sentinel）和从服务器"><span class="toc-number">4.</span> <span class="toc-text">自动发现哨兵（sentinel）和从服务器</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#Sentinel执行failover流程"><span class="toc-number">5.</span> <span class="toc-text">Sentinel执行failover流程</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#Sentinel发出投票通知"><span class="toc-number">6.</span> <span class="toc-text">Sentinel发出投票通知</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#Sentinel领头羊选举"><span class="toc-number">7.</span> <span class="toc-text">Sentinel领头羊选举</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#Sentinel主master选举"><span class="toc-number">8.</span> <span class="toc-text">Sentinel主master选举</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#Sentinel与redis实例之间的通信"><span class="toc-number">9.</span> <span class="toc-text">Sentinel与redis实例之间的通信</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#Sentinel配置文件参数说明"><span class="toc-number">10.</span> <span class="toc-text">Sentinel配置文件参数说明</span></a></li></ol>
+                </div>
+            
+            <blockquote>
+<p>本文将主要分析redis sentinel模式中sentinel（哨兵）所起作用</p>
+</blockquote>
+<h3 id="Sentinel主要功能"><a href="#Sentinel主要功能" class="headerlink" title="Sentinel主要功能"></a>Sentinel主要功能</h3><p>sentinel主要功能是在主库（master）出现问题后，实现：<strong>master存活检测、主从运行情况检测、自动failover、主从切换等高可用</strong>。redis的sentinel最小配置是一主一从，实现故障转移高可用。</p>
+<a id="more"></a>
+<p>基本原理：<strong>投票算法+心跳机制</strong></p>
+<p>在哨兵的运行阶段，其会向其他的哨兵、master和slave发送消息确认其是否存活，如果在指定的时间内未收到正常回应，暂时认为对法挂起了（被标记为主观宕机–SDOWN）<br>当多个哨兵都报告同一个master没有响应了，通过投票算法，系统判断其已死亡（被标记为客观宕机–ODOWN）。在已知的slave节点中，根据实际情况和优先级从该下线的master所属slave中选出一个slave提升为新的master，其他的slave都指向这个新的master，继续维护主从关系。 </p>
+<p>redis的sentinel系统可以用来管理多个redis服务器，该系统可以执行以下三个任务： </p>
+<ul>
+<li>监控：sentinel会不断的检查你的主服务器和从服务器是否正常运行。 </li>
+<li>提醒：当被监控的某个redis服务器出现问题，sentinel通过API向管理员或者其他的应用程序发送通知。<br>自动故障转移：当主服务器不能正常工作时，sentinel会开始一次自动的故障转移操作，它会将与失效主服务器是主从关系的其中一个从库升级为新的主服务器，并且修改其他的的slave，重定向到新的slave。</li>
+</ul>
+<p>redis的sentinel是一个分布式系统，可以在一个架构下运行多个sentinel进程，这些进程之间通过流言协议（gossip protocols)来接收关于主服务器是否下线的信息， 并使用投票协议（agreement protocols）来决定是否执行自动故障迁移， 以及选择哪个从slave服务器作为新的主服务器。</p>
+<h3 id="关于redis-sentinel的主观下线和客观下线"><a href="#关于redis-sentinel的主观下线和客观下线" class="headerlink" title="关于redis sentinel的主观下线和客观下线"></a>关于redis sentinel的主观下线和客观下线</h3><p>redis sentinel关于被监控的redis实例出现不响应的判断，内部有两种不同的概念：<strong>主观下线和客观下线</strong></p>
+<p>主观下线：当只有单个sentinel实例对redis实例做出无响应的判断，此时进入主观判断，不会触发自动故障转移等操作。<br>注意，一个服务器必须在 master-down-after-milliseconds 毫秒内， 一直返回无效回复才会被 Sentinel 标记为主观下线。 </p>
+<p>客观下线：多个 Sentinel 实例在对同一个服务器做出 SDOWN 判断， 并且通过 SENTINEL is-master-down-by-addr 命令互相交流之后， 得出的服务器下线判断。 （一个 Sentinel 可以通过向另一个 Sentinel 发送 SENTINEL is-master-down-by-addr 命令来询问对方是否认为给定的服务器已下线） </p>
+<p>从主观下线状态切换到客观下线状态并没有使用严格的法定人数算法（strong quorum algorithm）， 而是使用了流言协议： 如果 Sentinel 在给定的时间范围内， 从其他 Sentinel 那里接收到了足够数量的主服务器下线报告， 那么 Sentinel 就会将主服务器的状态从主观下线改变为客观下线。 如果之后其他 Sentinel 不再报告主服务器已下线， 那么客观下线状态就会被移除。</p>
+<p>客观下线条件只适用于主服务器： 对于任何其他类型的 Redis 实例， Sentinel 在将它们判断为下线前不需要进行协商， 所以从服务器或者其他 Sentinel 永远不会达到客观下线条件。<br>只要一个 Sentinel 发现某个主服务器进入了客观下线状态， 这个 Sentinel 就可能会被其他 Sentinel 推选出， 并对失效的主服务器执行自动故障迁移操作。</p>
+<h3 id="Sentinel定时执行的操作"><a href="#Sentinel定时执行的操作" class="headerlink" title="Sentinel定时执行的操作"></a>Sentinel定时执行的操作</h3><ol>
+<li>每个 Sentinel 以每秒钟一次的频率向它所知的主服务器、从服务器以及其他 Sentinel 实例发送一个 PING 命令。<br>如果一个实例（instance）距离最后一次有效回复 PING 命令的时间超过 down-after-milliseconds 选项所指定的值， 那么这个实例会被 Sentinel 标记为主观下线。 一个有效回复可以是： +PONG 、 -LOADING 或者 -MASTERDOWN 。 </li>
+<li>如果一个主服务器被标记为主观下线， 那么正在监视这个主服务器的所有 Sentinel 要以每秒一次的频率确认主服务器的确进入了主观下线状态。 </li>
+<li>如果一个主服务器被标记为主观下线， 并且有足够数量的 Sentinel （至少要达到配置文件指定的数量）在指定的时间范围内同意这一判断， 那么这个主服务器被标记为客观下线。 </li>
+<li>在一般情况下， 每个 Sentinel 会以每 10 秒一次的频率向它已知的所有主服务器和从服务器发送 INFO 命令。 当一个主服务器被 Sentinel 标记为客观下线时， Sentinel 向下线主服务器的所有从服务器发送 INFO 命令的频率会从 10 秒一次改为每秒一次。 </li>
+<li>当没有足够数量的 Sentinel 同意主服务器已经下线， 主服务器的客观下线状态就会被移除。 当主服务器重新向 Sentinel 的 PING 命令返回有效回复时， 主服务器的主管下线状态就会被移除。</li>
+</ol>
+<h3 id="自动发现哨兵（sentinel）和从服务器"><a href="#自动发现哨兵（sentinel）和从服务器" class="headerlink" title="自动发现哨兵（sentinel）和从服务器"></a>自动发现哨兵（sentinel）和从服务器</h3><p>sentinel与sentinel之间可以进行信息交换和检测对方的可用性。 </p>
+<ol>
+<li>无需为运行的每个sentinel分别设置其他的sentinel地址，因为sentinel可以通过redis内部的发布\订阅功能来自动的发现正在监视相同主机服务器的其他sentinel，这个功能是通过 sentinel:hello发送消息来实现的。 </li>
+<li>不必列出所有slave的信息，因为sentinel可以通过询问主服务器获取从服务器信息。</li>
+</ol>
+<p>每个 Sentinel 会以每两秒一次的频率， 通过发布与订阅功能， 向被它监视的所有主服务器和从服务器的 sentinel:hello 频道发送一条信息， 信息中包含了 Sentinel 的 IP 地址、端口号和运行 ID （runid）。 </p>
+<p>每个 Sentinel 都订阅了被它监视的所有主服务器和从服务器的 sentinel:hello 频道， 查找之前未出现过的 sentinel （looking for unknown sentinels）。 </p>
+<p>当一个 Sentinel 发现一个新的 Sentinel 时， 它会将新的 Sentinel 添加到一个列表中， 这个列表保存了 Sentinel 已知的， 监视同一个主服务器的所有其他 Sentinel 。 </p>
+<p>Sentinel 发送的信息中还包括完整的主服务器当前配置（configuration）。 如果一个 Sentinel 包含的主服务器配置比另一个 Sentinel 发送的配置要旧， 那么这个 Sentinel 会立即升级到新配置上。</p>
+<p>在将一个新 Sentinel 添加到监视主服务器的列表上面之前， Sentinel 会先检查列表中是否已经包含了和要添加的 Sentinel 拥有相同运行 ID 或者相同地址（包括 IP 地址和端口号）的 Sentinel ， 如果是的话， Sentinel 会先移除列表中已有的那些拥有相同运行 ID 或者相同地址的 Sentinel ， 然后再添加新 Sentinel</p>
+<h3 id="Sentinel执行failover流程"><a href="#Sentinel执行failover流程" class="headerlink" title="Sentinel执行failover流程"></a>Sentinel执行failover流程</h3><ol>
+<li>sentinel发现master下线，修改其状态为sdown；</li>
+<li>sentinel和其他sentinel确认master是否down掉，确认其状态为odown；</li>
+<li>对我们的当前纪元进行自增（详情请参考 Raft leader election ）， 并尝试在这个纪元中当选(即首先发现master down掉的sentinel有优先权当选为leader)；</li>
+<li>如果当选失败，那么在设定的故障迁移超时时间的两倍之后，重新尝试当选。如果当选成功，那么执行以下步骤；</li>
+<li>选出一个从服务器，并将它升级为主服务器；</li>
+<li>leader选出一个slave作为master，发送slaveof no one命令；</li>
+<li>通过发布与订阅功能，将更新后的配置传播给所有其他 Sentinel，其他 Sentinel 对它们自己的配置进行更新；</li>
+<li>并通过给其他slave发送slaveof master命令告知其他slave新的master；</li>
+<li>当所有从服务器都已经开始复制新的主服务器时，领头Sentinel终止这次故障迁移操作。</li>
+</ol>
+<h3 id="Sentinel发出投票通知"><a href="#Sentinel发出投票通知" class="headerlink" title="Sentinel发出投票通知"></a>Sentinel发出投票通知</h3><p>发现一个master down掉的sentinel发出投票请求的时候，接收者依据epoch进行判断后并返回它认为的leader后，发现者对接收者的意见照单全收，并没有进行“反驳”。换句话说，接收者接收所有的接收者的意见后，并没有进行一番比较，就接收了每个接收者的认为的leader，结果其leader就是最后一个接收者认为的leader。</p>
+<p>但是从另一方面说，每个接收者都会收到所有潜在的leader的选举邀请，他们会对所有这些候选者进行比较一番后，本地的leader肯定是最后比较的结果，这个结果会通过反馈给每个候选者的通知，使他们知道最终的胜出者，所以还是能选举出最后的leader。</p>
+<h3 id="Sentinel领头羊选举"><a href="#Sentinel领头羊选举" class="headerlink" title="Sentinel领头羊选举"></a>Sentinel领头羊选举</h3><p>Sentinel 自动故障迁移使用 Raft 算法来选举领头（leader） Sentinel ， 从而确保在一个给定的纪元（epoch）里， 只有一个领头产生。</p>
+<p>这表示在同一个纪元中， 不会有两个 Sentinel 同时被选中为领头， 并且各个 Sentinel 在同一个纪元中只会对一个领头进行投票。</p>
+<p>更高的配置纪元总是优于较低的纪元， 因此每个 Sentinel 都会主动使用更新的纪元来代替自己的配置。</p>
+<p>简单来说， 我们可以将 Sentinel 配置看作是一个带有版本号的状态。 一个状态会以最后写入者胜出（last-write-wins）的方式（也即是，最新的配置总是胜出）传播至所有其他 Sentinel 。</p>
+<p>举个例子， 当出现网络分割（network partitions）时， 一个 Sentinel 可能会包含了较旧的配置， 而当这个 Sentinel 接到其他 Sentinel 发来的版本更新的配置时， Sentinel 就会对自己的配置进行更新。</p>
+<p>如果要在网络分割出现的情况下仍然保持一致性， 那么应该使用 min-slaves-to-write 选项， 让主服务器在连接的从实例少于给定数量时停止执行写操作， 与此同时， 应该在每个运行 Redis 主服务器或从服务器的机器上运行 Redis Sentinel 进程。</p>
+<h3 id="Sentinel主master选举"><a href="#Sentinel主master选举" class="headerlink" title="Sentinel主master选举"></a>Sentinel主master选举</h3><p>Sentinel 使用以下规则来选择新的主服务器：</p>
+<ul>
+<li>在失效主服务器属下的从服务器当中， 那些被标记为主观下线、已断线、或者最后一次回复 PING 命令的时间大于五秒钟的从服务器都会被淘汰。</li>
+<li>在失效主服务器属下的从服务器当中， 那些与失效主服务器连接断开的时长超过 down-after 选项指定的时长十倍的从服务器都会被淘汰。</li>
+<li>我们选出复制偏移量（replication offset）最大的那个从服务器作为新的主服务器； 如果复制偏移量不可用， 或者从服务器的复制偏移量相同， 那么带有最小运行 ID 的那个从服务器成为新的主服务器。</li>
+</ul>
+<h3 id="Sentinel与redis实例之间的通信"><a href="#Sentinel与redis实例之间的通信" class="headerlink" title="Sentinel与redis实例之间的通信"></a>Sentinel与redis实例之间的通信</h3><p>以下是sentinel节点所接受的命令：</p>
+<ul>
+<li>PING ：返回 PONG 。 </li>
+<li>SENTINEL masters ：列出所有被监视的主服务器，以及这些主服务器的当前状态。 </li>
+<li>SENTINEL slaves ：列出给定主服务器的所有从服务器，以及这些从服务器的当前状态。 </li>
+<li>SENTINEL get-master-addr-by-name ： 返回给定名字的主服务器的 IP 地址和端口号。 如果这个主服务器正在执行故障转移操作， 或者针对这个主服务器的故障转移操作已经完成， 那么这个命令返回新的主服务器的 IP 地址和端口号。 </li>
+<li>SENTINEL reset ： 重置所有名字和给定模式 pattern 相匹配的主服务器。 pattern 参数是一个 Glob 风格的模式。 重置操作清除主服务器目前的所有状态， 包括正在执行中的故障转移， 并移除目前已经发现和关联的， 主服务器的所有从服务器和 Sentinel 。 </li>
+<li>SENTINEL failover ： 当主服务器失效时， 在不询问其他 Sentinel 意见的情况下， 强制开始一次自动故障迁移 （不过发起故障转移的 Sentinel 会向其他 Sentinel 发送一个新的配置，其他 Sentinel 会根据这个配置进行相应的更新）。</li>
+</ul>
+<p>sentinel连接一个redis实例的时候，会创建cmd和pub/sub两个链接，cmd连接创建成功时候立即发送一个ping命令，pub/sub连接创建成功的时候立即去监听hello channel。<br>通过cmd连接给redis发送命令，通过pub/sub连接得到redis实例上的其他sentinel实例。<br>sentinel与maste/slave的交互主要包括：</p>
+<ol>
+<li>PING:sentinel向其发送PING以了解其状态（是否下线）</li>
+<li>INFO:sentinel向其发送INFO以获取replication相关的信息，通过这个命令可以获取master的slaves</li>
+<li>PUBLISH:sentinel向其监控的master/slave发布本身的信息及master相关的配置</li>
+<li>SUBSCRIBE:sentinel通过订阅master/slave的”sentinel:hello“频道以获取其它正在监控相同服务的sentinels</li>
+</ol>
+<p>sentinel与sentinel的交互主要包括：</p>
+<ol>
+<li>PING:sentinel向slave发送PING以了解其状态（是否下线）</li>
+<li>SENTINEL is-master-down-by-addr：和其他sentinel协商master状态，如果master odown，则投票选出leader做fail over</li>
+</ol>
+<h3 id="Sentinel配置文件参数说明"><a href="#Sentinel配置文件参数说明" class="headerlink" title="Sentinel配置文件参数说明"></a>Sentinel配置文件参数说明</h3><p>部分参数说明：<br>port ：sentinel实例之间通讯的端口</p>
+<p>dir :指定工作目录</p>
+<p>sentinel monitor：sentinel需要监控的主库信息 sentinel monitor<br>其中master-name为自定义master名称，ip为master所在主机的ip地址，redis-port为redis实例的端口号，quorum界定有多少个sentinel实例提交与master通信失败才会判断master为客观宕机（ODOWN），从而发起自动切换。</p>
+<p>sentinel auth-pass：如果master开启的密码验证，在这里配置master的密码 sentinel auth-pass</p>
+<p>sentinel down-after-milliseconds：master被当前sentinel判断为失效的时间间隔，sentinel与master之间的通信没有响应或者代码错误等超过这个时间限定，sentinel会判断master为客观宕机SDOWNdown-after-milliseconds<br>sentinel parallel-syncs：当自动切换完成后，同时进行slaveof到新的master并行执行SYNC的slave个数，默认为1，建议线上保留这个数字，在slave执行slaveof的时候，将不会对客户端请求进行响应，对于读写分离业务会有一定的影响<br>sentinel parallel-syncs</p>
+<p>sentinel failover-timeout：制定failover的过期时间，超过此时间没有触发任何的failover操作，当前的sentinel会认为此次的failover擦走哦失败。 sentinel failover-timeout</p>
+<p>sentinel notification-script ：当进行failover时，可以指定一个通知脚本用来通知系统管理员，当前集群的情况。脚本被允许执行的最大时间为60秒，超过这个时间，脚本会被kill。 sentinel notification-script </p>
+<ol>
+<li>稍后重试，最大重试次数为10; </li>
+<li>执行结束，无需重试</li>
+</ol>
+<p>sentinel client-reconfig-script：<br>failover之后重配置客户端，执行脚本时会传递大量参数，请参考相关文档</p>
+
+        
+        </div>
+		
+			<div id="donate" style="text-align:center">
+			<div class="post-donate" style="margin-bottom: 30px;margin-top: 10px;">
+    <div id="donate_board" class="donate_bar center">
+        <a id="btn_donate" class="btn_donate" href="javascript:;" title="donate"></a>
+        <span class="donate_txt">
+           欣赏此文？求鼓励，求支持！
+        </span>
+        <br>
+    </div>
+    <div id="donate_guide" class="donate_bar donate_bar2 center hidden">
+        <img src="/css/images/alipay.jpg" id="weixin" title="alipay doante" alt="alipay doante">
+        <img src="/css/images/wechatpay.jpg" title="wechatpay donate" id="zhifubao" alt="echatpay donate">
+    </div>
+    <script type="text/javascript">
+        $('#weixin').hover()
+        document.getElementById('btn_donate').onclick = function () {
+            $('#donate_board').addClass('hidden');
+            $('#donate_guide').removeClass('hidden');
+        }
+
+    </script>
+</div>
+			</div>
+		
+        <footer class="article-footer">
+            
+            <div class="share-container">
+
+
+    <div class="bdsharebuttonbox">
+    <a href="#" class="bds_more" data-cmd="more">分享到：</a>
+	<a href="#" class="bds_weixin" data-cmd="weixin" title="分享到微信">微信</a>
+    <a href="#" class="bds_tsina" data-cmd="tsina" title="分享到新浪微博">微博</a>
+	<!--
+    <a href="#" class="bds_tqq" data-cmd="tqq" title="分享到腾讯微博">腾讯微博</a>
+    <a href="#" class="bds_renren" data-cmd="renren" title="分享到人人网">人人网</a>
+	<a href="#" class="bds_qzone" data-cmd="qzone" title="分享到QQ空间">QQ空间</a>
+	-->
+    
+</div>
+<script>
+window._bd_share_config={"common":{"bdSnsKey":{},"bdText":"","bdMini":"2","bdMiniList":false,"bdPic":"","bdStyle":"0","bdSize":"16"},"share":{"bdSize":16}};with(document)0[(getElementsByTagName('head')[0]||body).appendChild(createElement('script')).src='/static/api/js/share.js?v=89860593.js?cdnversion='+~(-new Date()/36e5)];
+</script>
+<style>
+    .bdshare_popup_box {
+        border-radius: 4px;
+        border: #e1e1e1 solid 1px;
+    }
+    .bdshare-button-style0-16 a,
+    .bdshare-button-style0-16 .bds_more {
+        padding-left: 20px;
+        margin: 6px 10px 6px 0;
+    }
+    .bdshare_dialog_list a,
+    .bdshare_popup_list a,
+    .bdshare_popup_bottom a {
+        font-family: 'Microsoft Yahei';
+    }
+    .bdshare_popup_top {
+        display: none;
+    }
+    .bdshare_popup_bottom {
+        height: auto;
+        padding: 5px;
+    }
+</style>
+
+
+</div>
+
+            
+            
+    
+        <a href="https://minibox.coding.me/2016/03/25/Redis Sentinel原理/#comments" class="article-comment-link ds-thread-count" data-thread-key="https://minibox.coding.me/2016/03/25/Redis Sentinel原理/">评论</a>
+    
+
+        </footer>
+    </div>
+    
+        
+<nav id="article-nav">
+    
+        <a href="/2016/03/31/如何避免代码多层嵌套/" id="article-nav-newer" class="article-nav-link-wrap">
+            <strong class="article-nav-caption">上一篇</strong>
+            <div class="article-nav-title">
+                
+                    如何避免代码多层嵌套
+                
+            </div>
+        </a>
+    
+    
+        <a href="/2016/03/23/Redis Sentinel高可用集群搭建及Spring集成/" id="article-nav-older" class="article-nav-link-wrap">
+            <strong class="article-nav-caption">下一篇</strong>
+            <div class="article-nav-title">Redis Sentinel高可用集群搭建及Spring集成</div>
+        </a>
+    
+</nav>
+
+
+    
+</article>
+
+
+    
+    <section id="comments">
+    
+        
+    <div class="ds-thread" data-thread-key="2016/03/25/Redis Sentinel原理/" data-title="Redis Sentinel原理" data-url="https://minibox.coding.me/2016/03/25/Redis Sentinel原理/"></div>
+    <style>
+        #ds-thread #ds-reset .ds-textarea-wrapper {
+            background: none;
+        }
+        #ds-reset .ds-avatar img {
+            box-shadow: none;
+        }
+        #ds-reset .ds-gradient-bg {
+            background: #f7f7f7;
+        }
+        #ds-thread #ds-reset li.ds-tab a {
+            border-radius: 3px;
+        }
+        #ds-thread #ds-reset .ds-post-button {
+            color: white;
+            border: none;
+            box-shadow: none;
+            background: #d32;
+            text-shadow: none;
+            font-weight: normal;
+            font-family: 'Microsoft Yahei';
+        }
+        #ds-thread #ds-reset .ds-post-button:hover {
+            color: white;
+            background: #DE594C;
+        }
+        #ds-thread #ds-reset .ds-post-button:active {
+            background: #d32;
+        }
+        #ds-smilies-tooltip ul.ds-smilies-tabs li a.ds-current {
+            color: white;
+            background: #d32;
+            box-shadow: none;
+            text-shadow: none;
+            font-weight: normal;
+        }
+    </style>
+
+    
+    </section>
+
+</section>
+            
+                <aside id="sidebar">
+   
+        
+    <div class="widget-wrap">
+        <h3 class="widget-title"><i class="fa fa-book"></i>最新文章</h3>
+        <div class="widget">
+            <ul id="recent-post" class="">
+                
+                    <li>
+                        
+                        <div class="item-thumbnail">
+                            <a href="/2016/04/29/Hexo-icarus主题小功能设置/" class="thumbnail">
+    
+    
+        <span class="thumbnail-image thumbnail-none"></span>
+    
+</a>
+
+                        </div>
+                        
+                        <div class="item-inner">
+                            <p class="item-category"><a class="article-category-link" href="/categories/杂谈/">杂谈</a></p>
+                            <p class="item-title"><a href="/2016/04/29/Hexo-icarus主题小功能设置/" class="title">Hexo icarus主题小功能设置</a></p>
+                            <p class="item-date"><time datetime="2016-04-29T03:05:56.000Z" itemprop="datePublished">2016-04-29</time></p>
+                        </div>
+                    </li>
+                
+                    <li>
+                        
+                        <div class="item-thumbnail">
+                            <a href="/2016/04/20/缓存穿透及雪崩之常见解决方案/" class="thumbnail">
+    
+    
+        <span class="thumbnail-image thumbnail-none"></span>
+    
+</a>
+
+                        </div>
+                        
+                        <div class="item-inner">
+                            <p class="item-category"><a class="article-category-link" href="/categories/redis/">redis</a></p>
+                            <p class="item-title"><a href="/2016/04/20/缓存穿透及雪崩之常见解决方案/" class="title">缓存穿透及雪崩之常见解决方案</a></p>
+                            <p class="item-date"><time datetime="2016-04-20T07:33:49.000Z" itemprop="datePublished">2016-04-20</time></p>
+                        </div>
+                    </li>
+                
+                    <li>
+                        
+                        <div class="item-thumbnail">
+                            <a href="/2016/04/10/Git多ssh-key配置/" class="thumbnail">
+    
+    
+        <span class="thumbnail-image thumbnail-none"></span>
+    
+</a>
+
+                        </div>
+                        
+                        <div class="item-inner">
+                            <p class="item-category"><a class="article-category-link" href="/categories/git/">git</a></p>
+                            <p class="item-title"><a href="/2016/04/10/Git多ssh-key配置/" class="title">Git多ssh-key配置</a></p>
+                            <p class="item-date"><time datetime="2016-04-10T06:40:54.000Z" itemprop="datePublished">2016-04-10</time></p>
+                        </div>
+                    </li>
+                
+            </ul>
+        </div>
+    </div>
+
+    
+        
+    <div class="widget-wrap">
+        <h3 class="widget-title"><i class="fa fa-folder"></i>分类</h3>
+        <div class="widget">
+            <ul class="category-list"><li class="category-list-item"><a class="category-list-link" href="/categories/git/">git</a><span class="category-list-count">1</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/redis/">redis</a><span class="category-list-count">3</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/杂谈/">杂谈</a><span class="category-list-count">3</span></li></ul>
+        </div>
+    </div>
+
+    
+        
+    <div class="widget-wrap">
+        <h3 class="widget-title"><i class="fa fa-archive"></i>归档</h3>
+        <div class="widget">
+            <ul class="archive-list"><li class="archive-list-item"><a class="archive-list-link" href="/archives/2016/04/">四月 2016</a><span class="archive-list-count">3</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2016/03/">三月 2016</a><span class="archive-list-count">3</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2015/09/">九月 2015</a><span class="archive-list-count">1</span></li></ul>
+        </div>
+    </div>
+
+    
+        
+    <div class="widget-wrap">
+        <h3 class="widget-title"><i class="fa fa-tags"></i>标签云</h3>
+        <div class="widget tagcloud">
+            <a href="/tags/git/" style="font-size: 10px;">git</a> <a href="/tags/hexo/" style="font-size: 15px;">hexo</a> <a href="/tags/redis/" style="font-size: 20px;">redis</a> <a href="/tags/sentinel/" style="font-size: 10px;">sentinel</a> <a href="/tags/sentinel原理/" style="font-size: 10px;">sentinel原理</a> <a href="/tags/spring-data-redis/" style="font-size: 10px;">spring-data-redis</a> <a href="/tags/打赏/" style="font-size: 10px;">打赏</a> <a href="/tags/缓存穿透/" style="font-size: 10px;">缓存穿透</a> <a href="/tags/缓存雪崩/" style="font-size: 10px;">缓存雪崩</a>
+        </div>
+    </div>
+
+    
+        
+    <div class="widget-wrap widget-list">
+        <h3 class="widget-title"><i class="fa fa-link"></i>链接</h3>
+        <div class="widget">
+            <ul>
+                
+                    <li>
+                        <a href="http://www.liaoxuefeng.com" target="_blank">廖雪峰</a>
+                    </li>
+                
+                    <li>
+                        <a href="http://www.ruanyifeng.com/blog/" target="_blank">阮一峰</a>
+                    </li>
+                
+                    <li>
+                        <a href="http://coolshell.cn/" target="_blank">酷壳</a>
+                    </li>
+                
+                    <li>
+                        <a href="http://jinnianshilongnian.iteye.com/" target="_blank">开涛的博客</a>
+                    </li>
+                
+            </ul>
+        </div>
+    </div>
+
+
+    
+    <div id="toTop" class="fa fa-angle-up"></div>
+</aside>
+            
+        </div>
+        <footer id="footer">
+    <div class="outer">
+        <div id="footer-info" class="inner">
+            &copy; 2017 Mickole Chou<br>
+            Powered by <a href="http://hexo.io/" target="_blank">Hexo</a>. Theme by <a href="http://github.com/ppoffice">PPOffice</a>
+			.
+Analyse with <script src="https://s4.cnzz.com/z_stat.php?id=1261681714&web_id=1261681714" language="JavaScript"></script>
+
+        </div>
+    </div>
+</footer>
+        
+    
+    <script type="text/javascript">
+    var duoshuoQuery = {short_name:'mickolechou'};
+    (function() {
+    var ds = document.createElement('script');
+    ds.type = 'text/javascript';ds.async = true;
+    ds.src = (document.location.protocol == 'https:' ? 'https:' : 'http:') + '//static.duoshuo.com/embed.js';
+    ds.charset = 'UTF-8';
+    (document.getElementsByTagName('head')[0]
+    || document.getElementsByTagName('body')[0]).appendChild(ds);
+    })();
+    </script>
+
+
+
+
+    
+        <script src="/libs/lightgallery/js/lightgallery.min.js"></script>
+        <script src="/libs/lightgallery/js/lg-thumbnail.min.js"></script>
+        <script src="/libs/lightgallery/js/lg-pager.min.js"></script>
+        <script src="/libs/lightgallery/js/lg-autoplay.min.js"></script>
+        <script src="/libs/lightgallery/js/lg-fullscreen.min.js"></script>
+        <script src="/libs/lightgallery/js/lg-zoom.min.js"></script>
+        <script src="/libs/lightgallery/js/lg-hash.min.js"></script>
+        <script src="/libs/lightgallery/js/lg-share.min.js"></script>
+        <script src="/libs/lightgallery/js/lg-video.min.js"></script>
+    
+    
+        <script src="/libs/justified-gallery/jquery.justifiedGallery.min.js"></script>
+    
+    
+
+
+
+<!-- Custom Scripts -->
+<script src="/js/main.js"></script>
+
+    </div>
+</body>
+</html>
