@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang=zh>
+<html lang=en>
 <head>
 	
 	
@@ -75,15 +75,15 @@
             </a>
             <nav id="main-nav">
                 
-                    <a class="main-nav-link" href="/."><i class="fa fa-home"></i>主页</a>
+                    <a class="main-nav-link" href="/."><i class="fa fa-home"></i>Home</a>
                 
-                    <a class="main-nav-link" href="/archives"><i class="fa fa-archive"></i>归档</a>
+                    <a class="main-nav-link" href="/archives"><i class="fa fa-archive"></i>Archives</a>
                 
-                    <a class="main-nav-link" href="/categories"><i class="fa fa-folder"></i>分类</a>
+                    <a class="main-nav-link" href="/categories"><i class="fa fa-folder"></i>Categories</a>
                 
-                    <a class="main-nav-link" href="/tags"><i class="fa fa-tags"></i>标签</a>
+                    <a class="main-nav-link" href="/tags"><i class="fa fa-tags"></i>Tags</a>
                 
-                    <a class="main-nav-link" href="/about"><i class="fa fa-user"></i>关于</a>
+                    <a class="main-nav-link" href="/about"><i class="fa fa-user"></i>About</a>
                 
             </nav>
             
@@ -100,14 +100,14 @@
             <div id="search-form-wrap">
 
     <form class="search-form">
-        <input type="text" class="ins-search-input search-form-input" placeholder="搜索" />
+        <input type="text" class="ins-search-input search-form-input" placeholder="Search" />
         <button type="submit" class="search-form-submit"></button>
     </form>
     <div class="ins-search">
     <div class="ins-search-mask"></div>
     <div class="ins-search-container">
         <div class="ins-input-wrapper">
-            <input type="text" class="ins-search-input" placeholder="想要查找什么..." />
+            <input type="text" class="ins-search-input" placeholder="Type something..." />
             <span class="ins-close ins-selectable"><i class="fa fa-times-circle"></i></span>
         </div>
         <div class="ins-section-wrapper">
@@ -119,11 +119,11 @@
 (function (window) {
     var INSIGHT_CONFIG = {
         TRANSLATION: {
-            POSTS: '文章',
-            PAGES: '页面',
-            CATEGORIES: '分类',
-            TAGS: '标签',
-            UNTITLED: '(未命名)',
+            POSTS: 'Posts',
+            PAGES: 'Pages',
+            CATEGORIES: 'Categories',
+            TAGS: 'Tags',
+            UNTITLED: '(Untitled)',
         },
         ROOT_URL: '/',
         CONTENT_URL: '/content.json',
@@ -140,20 +140,20 @@
         <table class="menu outer">
             <tr>
                 
-                    <td><a class="main-nav-link" href="/."><i class="fa fa-home"><span class="nav-link-text">主页</span></a></td>
+                    <td><a class="main-nav-link" href="/."><i class="fa fa-home"><span class="nav-link-text">Home</span></a></td>
                 
-                    <td><a class="main-nav-link" href="/archives"><i class="fa fa-archive"><span class="nav-link-text">归档</span></a></td>
+                    <td><a class="main-nav-link" href="/archives"><i class="fa fa-archive"><span class="nav-link-text">Archives</span></a></td>
                 
-                    <td><a class="main-nav-link" href="/categories"><i class="fa fa-folder"><span class="nav-link-text">分类</span></a></td>
+                    <td><a class="main-nav-link" href="/categories"><i class="fa fa-folder"><span class="nav-link-text">Categories</span></a></td>
                 
-                    <td><a class="main-nav-link" href="/tags"><i class="fa fa-tags"><span class="nav-link-text">标签</span></a></td>
+                    <td><a class="main-nav-link" href="/tags"><i class="fa fa-tags"><span class="nav-link-text">Tags</span></a></td>
                 
-                    <td><a class="main-nav-link" href="/about"><i class="fa fa-user"><span class="nav-link-text">关于</span></a></td>
+                    <td><a class="main-nav-link" href="/about"><i class="fa fa-user"><span class="nav-link-text">About</span></a></td>
                 
                 <td>
                     
     <div class="search-form">
-        <input type="text" class="ins-search-input search-form-input" placeholder="搜索" />
+        <input type="text" class="ins-search-input search-form-input" placeholder="Search" />
     </div>
 
                 </td>
@@ -173,16 +173,16 @@
             <h2 id="name">Mickole Chou</h2>
             <h3 id="title">Developer &amp; Writer</h3>
             <span id="location"><i class="fa fa-map-marker"></i>Chengdu, China</span>
-            <a id="follow" target="_blank" href="https://github.com/mickolechou">关注我</a>
+            <a id="follow" target="_blank" href="https://github.com/mickolechou">FOLLOW</a>
         </div>
         <div class="article-info profile-block">
             <div class="article-info-block">
                 7
-                <span>文章</span>
+                <span>posts</span>
             </div>
             <div class="article-info-block">
                 9
-                <span>标签</span>
+                <span>tags</span>
             </div>
         </div>
         
@@ -267,7 +267,7 @@
         
             
                 <div id="toc" class="toc-article">
-                <strong class="toc-title">文章目录</strong>
+                <strong class="toc-title">Catalogue</strong>
                     <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#一、Sentinel介绍"><span class="toc-number">1.</span> <span class="toc-text">一、Sentinel介绍</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#二、Sentinel的主从原理"><span class="toc-number">2.</span> <span class="toc-text">二、Sentinel的主从原理</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#三、Redis-Sentinel高可用集群搭建"><span class="toc-number">3.</span> <span class="toc-text">三、Redis Sentinel高可用集群搭建</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#redis安装"><span class="toc-number">3.1.</span> <span class="toc-text">redis安装</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#redis-sentinel集群搭建"><span class="toc-number">3.1.1.</span> <span class="toc-text">redis sentinel集群搭建</span></a></li></ol></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#四、Jedis-Sentinel教程"><span class="toc-number">4.</span> <span class="toc-text">四、Jedis Sentinel教程</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#常见问题"><span class="toc-number">5.</span> <span class="toc-text">常见问题</span></a></li></ol>
                 </div>
             
@@ -415,7 +415,7 @@ window._bd_share_config={"common":{"bdSnsKey":{},"bdText":"","bdMini":"2","bdMin
             
             
     
-        <a href="https://minibox.coding.me/2016/03/23/Redis Sentinel高可用集群搭建及Spring集成/#comments" class="article-comment-link ds-thread-count" data-thread-key="https://minibox.coding.me/2016/03/23/Redis Sentinel高可用集群搭建及Spring集成/">评论</a>
+        <a href="https://minibox.coding.me/2016/03/23/Redis Sentinel高可用集群搭建及Spring集成/#comments" class="article-comment-link ds-thread-count" data-thread-key="https://minibox.coding.me/2016/03/23/Redis Sentinel高可用集群搭建及Spring集成/">Comments</a>
     
 
         </footer>
@@ -425,7 +425,7 @@ window._bd_share_config={"common":{"bdSnsKey":{},"bdText":"","bdMini":"2","bdMin
 <nav id="article-nav">
     
         <a href="/2016/03/25/Redis Sentinel原理/" id="article-nav-newer" class="article-nav-link-wrap">
-            <strong class="article-nav-caption">上一篇</strong>
+            <strong class="article-nav-caption">Newer</strong>
             <div class="article-nav-title">
                 
                     Redis Sentinel原理
@@ -435,7 +435,7 @@ window._bd_share_config={"common":{"bdSnsKey":{},"bdText":"","bdMini":"2","bdMin
     
     
         <a href="/2015/09/21/hexo添加打赏功能/" id="article-nav-older" class="article-nav-link-wrap">
-            <strong class="article-nav-caption">下一篇</strong>
+            <strong class="article-nav-caption">Older</strong>
             <div class="article-nav-title">hexo添加打赏功能</div>
         </a>
     
@@ -498,7 +498,7 @@ window._bd_share_config={"common":{"bdSnsKey":{},"bdText":"","bdMini":"2","bdMin
    
         
     <div class="widget-wrap">
-        <h3 class="widget-title"><i class="fa fa-book"></i>最新文章</h3>
+        <h3 class="widget-title"><i class="fa fa-book"></i>recent</h3>
         <div class="widget">
             <ul id="recent-post" class="">
                 
@@ -566,7 +566,7 @@ window._bd_share_config={"common":{"bdSnsKey":{},"bdText":"","bdMini":"2","bdMin
     
         
     <div class="widget-wrap">
-        <h3 class="widget-title"><i class="fa fa-folder"></i>分类</h3>
+        <h3 class="widget-title"><i class="fa fa-folder"></i>categories</h3>
         <div class="widget">
             <ul class="category-list"><li class="category-list-item"><a class="category-list-link" href="/categories/git/">git</a><span class="category-list-count">1</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/redis/">redis</a><span class="category-list-count">3</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/杂谈/">杂谈</a><span class="category-list-count">3</span></li></ul>
         </div>
@@ -575,16 +575,16 @@ window._bd_share_config={"common":{"bdSnsKey":{},"bdText":"","bdMini":"2","bdMin
     
         
     <div class="widget-wrap">
-        <h3 class="widget-title"><i class="fa fa-archive"></i>归档</h3>
+        <h3 class="widget-title"><i class="fa fa-archive"></i>archives</h3>
         <div class="widget">
-            <ul class="archive-list"><li class="archive-list-item"><a class="archive-list-link" href="/archives/2016/04/">四月 2016</a><span class="archive-list-count">3</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2016/03/">三月 2016</a><span class="archive-list-count">3</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2015/09/">九月 2015</a><span class="archive-list-count">1</span></li></ul>
+            <ul class="archive-list"><li class="archive-list-item"><a class="archive-list-link" href="/archives/2016/04/">April 2016</a><span class="archive-list-count">3</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2016/03/">March 2016</a><span class="archive-list-count">3</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2015/09/">September 2015</a><span class="archive-list-count">1</span></li></ul>
         </div>
     </div>
 
     
         
     <div class="widget-wrap">
-        <h3 class="widget-title"><i class="fa fa-tags"></i>标签云</h3>
+        <h3 class="widget-title"><i class="fa fa-tags"></i>tag cloud</h3>
         <div class="widget tagcloud">
             <a href="/tags/git/" style="font-size: 10px;">git</a> <a href="/tags/hexo/" style="font-size: 15px;">hexo</a> <a href="/tags/redis/" style="font-size: 20px;">redis</a> <a href="/tags/sentinel/" style="font-size: 10px;">sentinel</a> <a href="/tags/sentinel原理/" style="font-size: 10px;">sentinel原理</a> <a href="/tags/spring-data-redis/" style="font-size: 10px;">spring-data-redis</a> <a href="/tags/打赏/" style="font-size: 10px;">打赏</a> <a href="/tags/缓存穿透/" style="font-size: 10px;">缓存穿透</a> <a href="/tags/缓存雪崩/" style="font-size: 10px;">缓存雪崩</a>
         </div>
@@ -593,7 +593,7 @@ window._bd_share_config={"common":{"bdSnsKey":{},"bdText":"","bdMini":"2","bdMin
     
         
     <div class="widget-wrap widget-list">
-        <h3 class="widget-title"><i class="fa fa-link"></i>链接</h3>
+        <h3 class="widget-title"><i class="fa fa-link"></i>links</h3>
         <div class="widget">
             <ul>
                 
