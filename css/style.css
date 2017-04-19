@@ -513,6 +513,9 @@ code {
 .main-nav-link {
   font-weight: 500;
 }
+.main-nav-link .nav-link-text {
+  margin-left: 5px;
+}
 @media screen and (max-width: 559px) {
   .main-nav-link .nav-link-text {
     display: none;
@@ -1989,7 +1992,7 @@ ol.toc {
   color: #e84d1c;
 }
 .widget-title .fa {
-  margin-right: 3px;
+  margin-right: 5px;
 }
 .widget {
   padding: 15px 5px;
