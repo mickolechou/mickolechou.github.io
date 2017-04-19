@@ -704,6 +704,7 @@ code {
 }
 .list-categories {
   border-radius: 0px;
+  margin-bottom: 20px;
 }
 .bio {
   text-align: center;
@@ -1578,7 +1579,7 @@ ol.toc {
 .archive-category-wrap .fa,
 .archive-tag-wrap .fa,
 .layout-title .fa {
-  margin-right: 3px;
+  margin-right: 5px;
 }
 .archive-year-wrap .archive-year,
 .archive-category-wrap .archive-year,
@@ -2082,6 +2083,7 @@ ol.toc {
   border-radius: 40px;
   bottom: 20px;
   position: fixed;
+  z-index: 999;
 }
 @media screen and (min-width: 560px) and (max-width: 799px) {
   #toTop {
