@@ -2,6 +2,13 @@
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
   
   <url>
+    <loc>https://minibox.coding.me/2016/04/10/Git%E5%A4%9Assh-key%E9%85%8D%E7%BD%AE/</loc>
+    
+    <lastmod>2017-04-20T00:57:14.719Z</lastmod>
+    
+  </url>
+  
+  <url>
     <loc>https://minibox.coding.me/tags/index.html</loc>
     
     <lastmod>2017-04-17T02:08:21.498Z</lastmod>
@@ -61,13 +68,6 @@
     <loc>https://minibox.coding.me/2016/04/29/Hexo-icarus%E4%B8%BB%E9%A2%98%E5%B0%8F%E5%8A%9F%E8%83%BD%E8%AE%BE%E7%BD%AE/</loc>
     
     <lastmod>2017-04-17T02:08:21.484Z</lastmod>
-    
-  </url>
-  
-  <url>
-    <loc>https://minibox.coding.me/2016/04/10/Git%E5%A4%9Assh-key%E9%85%8D%E7%BD%AE/</loc>
-    
-    <lastmod>2017-04-17T02:08:21.483Z</lastmod>
     
   </url>
   

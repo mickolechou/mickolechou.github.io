@@ -3,6 +3,26 @@
 
 
     
+  <url>
+    <loc>https://minibox.coding.me/2016/04/10/Git%E5%A4%9Assh-key%E9%85%8D%E7%BD%AE/</loc>
+    <lastmod>2017-04-20T00:57:14.719Z</lastmod>
+    <data>
+        <display>
+        <title>Git多ssh-key配置</title>
+        <pubTime>2016-04-10T06:40:54.000Z</pubTime>
+        
+        <tag>git</tag>
+         
+         
+           
+             
+              <breadCrumb title="git" url="https://minibox.coding.me/categories/git/"/>
+          
+        </display>
+    </data>
+    </url>
+
+    
     
     
     
@@ -130,26 +150,6 @@
            
              
               <breadCrumb title="杂谈" url="https://minibox.coding.me/categories/%E6%9D%82%E8%B0%88/"/>
-          
-        </display>
-    </data>
-    </url>
-
-    
-  <url>
-    <loc>https://minibox.coding.me/2016/04/10/Git%E5%A4%9Assh-key%E9%85%8D%E7%BD%AE/</loc>
-    <lastmod>2017-04-17T02:08:21.483Z</lastmod>
-    <data>
-        <display>
-        <title>Git多ssh-key配置</title>
-        <pubTime>2016-04-10T06:40:54.000Z</pubTime>
-        
-        <tag>git</tag>
-         
-         
-           
-             
-              <breadCrumb title="git" url="https://minibox.coding.me/categories/git/"/>
           
         </display>
     </data>

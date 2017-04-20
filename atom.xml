@@ -164,7 +164,7 @@
     <link href="https://minibox.coding.me/2016/04/10/Git%E5%A4%9Assh-key%E9%85%8D%E7%BD%AE/"/>
     <id>https://minibox.coding.me/2016/04/10/Git多ssh-key配置/</id>
     <published>2016-04-10T06:40:54.000Z</published>
-    <updated>2017-04-17T02:08:21.483Z</updated>
+    <updated>2017-04-20T00:57:14.719Z</updated>
     
     <content type="html"><![CDATA[<blockquote>
 <p>由于github pages国外网络访问较慢，故准备将blog迁至国内coding pages。又因两网站email不同，导致同一ssh key不同两用，没得法，只能采用多网站多key方式部署。</p>
@@ -196,7 +196,7 @@
 <p>Host指定站点<br>IdentityFile指定所使用的密钥对<br>比如我们这位coding.net和github.com指定密钥对<br>则config中添加如下内容：<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div></pre></td><td class="code"><pre><div class="line">Host coding.net</div><div class="line">IdentityFile ~/.ssh/id_rsa</div><div class="line">Host github.com</div><div class="line">IdentityFile ~/.ssh/github</div></pre></td></tr></table></figure></p>
 <h2 id="添加公钥到各站点"><a href="#添加公钥到各站点" class="headerlink" title="添加公钥到各站点"></a>添加公钥到各站点</h2><p>将之前生成的公钥分别添加到各站点<br>比如为coding添加公钥如下：<br><img src="http://i4.buimg.com/567571/6d8e095c876b176e.png" alt="coding添加公钥"></p>
 <h2 id="测试SSH配置是否正常访问"><a href="#测试SSH配置是否正常访问" class="headerlink" title="测试SSH配置是否正常访问"></a>测试SSH配置是否正常访问</h2><p>以上操作完成后，可通过如下命令测试能否SSH免密连接<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">ssh -T git@github.com</div></pre></td></tr></table></figure></p>
-<p>以上测试连接github,也是自行测试coding.net。如果输出如下内容则表示成功：<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">Hi stefzhlg! You&apos;ve successfully authenticated, but GitHub does not provide shell access.</div></pre></td></tr></table></figure></p>
+<p>以上测试连接github,也是自行测试coding.net。如果输出如下内容则表示成功：<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">Hi mickolechou! You&apos;ve successfully authenticated, but GitHub does not provide shell access.</div></pre></td></tr></table></figure></p>
 <p>注意：首次连接会提示是否确认通过ssh连接，按要求输入yes即可。</p>
 ]]></content>
     
