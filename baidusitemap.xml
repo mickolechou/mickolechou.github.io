@@ -4,6 +4,26 @@
 
     
   <url>
+    <loc>https://minibox.coding.me/2016/04/29/Hexo-icarus%E4%B8%BB%E9%A2%98%E5%B0%8F%E5%8A%9F%E8%83%BD%E8%AE%BE%E7%BD%AE/</loc>
+    <lastmod>2017-04-21T01:10:48.270Z</lastmod>
+    <data>
+        <display>
+        <title>Hexo icarus主题小功能设置</title>
+        <pubTime>2016-04-29T03:05:56.000Z</pubTime>
+        
+        <tag>hexo</tag>
+         
+         
+           
+             
+              <breadCrumb title="杂谈" url="https://minibox.coding.me/categories/%E6%9D%82%E8%B0%88/"/>
+          
+        </display>
+    </data>
+    </url>
+
+    
+  <url>
     <loc>https://minibox.coding.me/2016/04/10/Git%E5%A4%9Assh-key%E9%85%8D%E7%BD%AE/</loc>
     <lastmod>2017-04-20T01:03:01.019Z</lastmod>
     <data>
@@ -130,26 +150,6 @@
            
              
               <breadCrumb title="redis" url="https://minibox.coding.me/categories/redis/"/>
-          
-        </display>
-    </data>
-    </url>
-
-    
-  <url>
-    <loc>https://minibox.coding.me/2016/04/29/Hexo-icarus%E4%B8%BB%E9%A2%98%E5%B0%8F%E5%8A%9F%E8%83%BD%E8%AE%BE%E7%BD%AE/</loc>
-    <lastmod>2017-04-17T02:08:21.484Z</lastmod>
-    <data>
-        <display>
-        <title>Hexo icarus主题小功能设置</title>
-        <pubTime>2016-04-29T03:05:56.000Z</pubTime>
-        
-        <tag>hexo</tag>
-         
-         
-           
-             
-              <breadCrumb title="杂谈" url="https://minibox.coding.me/categories/%E6%9D%82%E8%B0%88/"/>
           
         </display>
     </data>
