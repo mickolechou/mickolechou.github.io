@@ -708,6 +708,7 @@ code {
   position: absolute;
   -webkit-box-shadow: 0px 2px 5px rgba(0,0,0,0.14);
   box-shadow: 0px 2px 5px rgba(0,0,0,0.14);
+  border-radius: 0px 5px 5px 0px;
 }
 #player-show {
   width: 20px;
