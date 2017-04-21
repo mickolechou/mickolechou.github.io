@@ -4,6 +4,30 @@
 
     
   <url>
+    <loc>https://minibox.coding.me/2016/04/21/Java7%E6%96%B0%E7%89%B9%E6%80%A7%EF%BC%9Atry-with-resources%E8%87%AA%E5%8A%A8%E5%85%B3%E9%97%AD%E8%B5%84%E6%BA%90/</loc>
+    <lastmod>2017-04-21T08:45:26.383Z</lastmod>
+    <data>
+        <display>
+        <title>Java7新特性：try-with-resources自动关闭资源</title>
+        <pubTime>2016-04-21T08:42:46.000Z</pubTime>
+        
+        <tag>try-with-resources</tag>
+         
+        <tag>Closeable</tag>
+         
+        <tag>AutoCloseable</tag>
+         
+         
+           
+             
+              <breadCrumb title="java" url="https://minibox.coding.me/categories/java/"/>
+          
+        </display>
+    </data>
+    </url>
+
+    
+  <url>
     <loc>https://minibox.coding.me/2016/04/29/Hexo-icarus%E4%B8%BB%E9%A2%98%E5%B0%8F%E5%8A%9F%E8%83%BD%E8%AE%BE%E7%BD%AE/</loc>
     <lastmod>2017-04-21T05:12:06.517Z</lastmod>
     <data>
