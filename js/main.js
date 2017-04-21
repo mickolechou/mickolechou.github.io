@@ -39,7 +39,19 @@
         $('#profile').toggleClass('card');
     }).on('click', '.profile-inner', function (e) {
         e.stopPropagation();
+    }).on('click', '#player-flex',function () {
+        if($("#player-wrap").css("left")!="0px"){
+            $("#player-wrap").css("left",0+"px");
+            $("#player-show i").removeClass("fa-chevron-right")            
+            $("#player-show i").addClass("fa-chevron-left")          
+        }else{
+            $("#player-wrap").css("left",-276+"px");
+            $("#player-show i").removeClass("fa-chevron-left")            
+            $("#player-show i").addClass("fa-chevron-right")  
+        }
     });
+
+
 
     // To Top
     if ($('#sidebar').length) {
