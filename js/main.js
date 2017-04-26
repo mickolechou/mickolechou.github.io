@@ -39,7 +39,10 @@
         $('#profile').toggleClass('card');
     }).on('click', '.profile-inner', function (e) {
         e.stopPropagation();
-    }).on('click', '#player-flex',function () {
+    }).on('dblclick', '#header', function (e) { //双击头部回到顶部事件
+        e.stopPropagation();
+        $('body, html').animate({ scrollTop: 0 }, 600);
+    }).on('click', '#player-flex',function () { //播放器展开及隐藏事件
         if($("#player-wrap").css("left")!="0px"){
             $("#player-wrap").css("left",0+"px");
             $("#player-show i").removeClass("fa-chevron-right")            
