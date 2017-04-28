@@ -4,9 +4,9 @@
   <subtitle>尘世间迷途小码农一枚</subtitle>
   <link href="/atom.xml" rel="self"/>
   
-  <link href="https://minibox.coding.me/"/>
+  <link href="http://menote.info/"/>
   <updated>2017-04-28T01:44:02.985Z</updated>
-  <id>https://minibox.coding.me/</id>
+  <id>http://menote.info/</id>
   
   <author>
     <name>Mickole Chou</name>
@@ -17,8 +17,8 @@
   
   <entry>
     <title>Hexo icarus主题小功能设置</title>
-    <link href="https://minibox.coding.me/2016/04/29/Hexo-icarus%E4%B8%BB%E9%A2%98%E5%B0%8F%E5%8A%9F%E8%83%BD%E8%AE%BE%E7%BD%AE/"/>
-    <id>https://minibox.coding.me/2016/04/29/Hexo-icarus主题小功能设置/</id>
+    <link href="http://menote.info/2016/04/29/Hexo-icarus%E4%B8%BB%E9%A2%98%E5%B0%8F%E5%8A%9F%E8%83%BD%E8%AE%BE%E7%BD%AE/"/>
+    <id>http://menote.info/2016/04/29/Hexo-icarus主题小功能设置/</id>
     <published>2016-04-29T03:05:56.000Z</published>
     <updated>2017-04-28T01:44:02.985Z</updated>
     
@@ -116,17 +116,17 @@
     
     </summary>
     
-      <category term="杂谈" scheme="https://minibox.coding.me/categories/%E6%9D%82%E8%B0%88/"/>
+      <category term="杂谈" scheme="http://menote.info/categories/%E6%9D%82%E8%B0%88/"/>
     
     
-      <category term="hexo" scheme="https://minibox.coding.me/tags/hexo/"/>
+      <category term="hexo" scheme="http://menote.info/tags/hexo/"/>
     
   </entry>
   
   <entry>
     <title>Java7新特性：try-with-resources自动关闭资源</title>
-    <link href="https://minibox.coding.me/2016/04/21/Java7%E6%96%B0%E7%89%B9%E6%80%A7%EF%BC%9Atry-with-resources%E8%87%AA%E5%8A%A8%E5%85%B3%E9%97%AD%E8%B5%84%E6%BA%90/"/>
-    <id>https://minibox.coding.me/2016/04/21/Java7新特性：try-with-resources自动关闭资源/</id>
+    <link href="http://menote.info/2016/04/21/Java7%E6%96%B0%E7%89%B9%E6%80%A7%EF%BC%9Atry-with-resources%E8%87%AA%E5%8A%A8%E5%85%B3%E9%97%AD%E8%B5%84%E6%BA%90/"/>
+    <id>http://menote.info/2016/04/21/Java7新特性：try-with-resources自动关闭资源/</id>
     <published>2016-04-21T08:42:46.000Z</published>
     <updated>2017-04-24T02:27:59.438Z</updated>
     
@@ -170,21 +170,21 @@
     
     </summary>
     
-      <category term="java" scheme="https://minibox.coding.me/categories/java/"/>
+      <category term="java" scheme="http://menote.info/categories/java/"/>
     
     
-      <category term="try-with-resources" scheme="https://minibox.coding.me/tags/try-with-resources/"/>
+      <category term="try-with-resources" scheme="http://menote.info/tags/try-with-resources/"/>
     
-      <category term="Closeable" scheme="https://minibox.coding.me/tags/Closeable/"/>
+      <category term="Closeable" scheme="http://menote.info/tags/Closeable/"/>
     
-      <category term="AutoCloseable" scheme="https://minibox.coding.me/tags/AutoCloseable/"/>
+      <category term="AutoCloseable" scheme="http://menote.info/tags/AutoCloseable/"/>
     
   </entry>
   
   <entry>
     <title>缓存穿透及雪崩之常见解决方案</title>
-    <link href="https://minibox.coding.me/2016/04/20/%E7%BC%93%E5%AD%98%E7%A9%BF%E9%80%8F%E5%8F%8A%E9%9B%AA%E5%B4%A9%E4%B9%8B%E5%B8%B8%E8%A7%81%E8%A7%A3%E5%86%B3%E6%96%B9%E6%A1%88/"/>
-    <id>https://minibox.coding.me/2016/04/20/缓存穿透及雪崩之常见解决方案/</id>
+    <link href="http://menote.info/2016/04/20/%E7%BC%93%E5%AD%98%E7%A9%BF%E9%80%8F%E5%8F%8A%E9%9B%AA%E5%B4%A9%E4%B9%8B%E5%B8%B8%E8%A7%81%E8%A7%A3%E5%86%B3%E6%96%B9%E6%A1%88/"/>
+    <id>http://menote.info/2016/04/20/缓存穿透及雪崩之常见解决方案/</id>
     <published>2016-04-20T07:33:49.000Z</published>
     <updated>2017-04-17T02:08:21.491Z</updated>
     
@@ -265,21 +265,21 @@
     
     </summary>
     
-      <category term="redis" scheme="https://minibox.coding.me/categories/redis/"/>
+      <category term="redis" scheme="http://menote.info/categories/redis/"/>
     
     
-      <category term="redis" scheme="https://minibox.coding.me/tags/redis/"/>
+      <category term="redis" scheme="http://menote.info/tags/redis/"/>
     
-      <category term="缓存穿透" scheme="https://minibox.coding.me/tags/%E7%BC%93%E5%AD%98%E7%A9%BF%E9%80%8F/"/>
+      <category term="缓存穿透" scheme="http://menote.info/tags/%E7%BC%93%E5%AD%98%E7%A9%BF%E9%80%8F/"/>
     
-      <category term="缓存雪崩" scheme="https://minibox.coding.me/tags/%E7%BC%93%E5%AD%98%E9%9B%AA%E5%B4%A9/"/>
+      <category term="缓存雪崩" scheme="http://menote.info/tags/%E7%BC%93%E5%AD%98%E9%9B%AA%E5%B4%A9/"/>
     
   </entry>
   
   <entry>
     <title>Git多ssh-key配置</title>
-    <link href="https://minibox.coding.me/2016/04/10/Git%E5%A4%9Assh-key%E9%85%8D%E7%BD%AE/"/>
-    <id>https://minibox.coding.me/2016/04/10/Git多ssh-key配置/</id>
+    <link href="http://menote.info/2016/04/10/Git%E5%A4%9Assh-key%E9%85%8D%E7%BD%AE/"/>
+    <id>http://menote.info/2016/04/10/Git多ssh-key配置/</id>
     <published>2016-04-10T06:40:54.000Z</published>
     <updated>2017-04-20T01:03:01.019Z</updated>
     
@@ -325,17 +325,17 @@
     
     </summary>
     
-      <category term="git" scheme="https://minibox.coding.me/categories/git/"/>
+      <category term="git" scheme="http://menote.info/categories/git/"/>
     
     
-      <category term="git" scheme="https://minibox.coding.me/tags/git/"/>
+      <category term="git" scheme="http://menote.info/tags/git/"/>
     
   </entry>
   
   <entry>
     <title>如何避免代码多层嵌套</title>
-    <link href="https://minibox.coding.me/2016/03/31/%E5%A6%82%E4%BD%95%E9%81%BF%E5%85%8D%E4%BB%A3%E7%A0%81%E5%A4%9A%E5%B1%82%E5%B5%8C%E5%A5%97/"/>
-    <id>https://minibox.coding.me/2016/03/31/如何避免代码多层嵌套/</id>
+    <link href="http://menote.info/2016/03/31/%E5%A6%82%E4%BD%95%E9%81%BF%E5%85%8D%E4%BB%A3%E7%A0%81%E5%A4%9A%E5%B1%82%E5%B5%8C%E5%A5%97/"/>
+    <id>http://menote.info/2016/03/31/如何避免代码多层嵌套/</id>
     <published>2016-03-31T02:29:55.000Z</published>
     <updated>2017-04-17T02:08:21.490Z</updated>
     
@@ -373,15 +373,15 @@
     
     </summary>
     
-      <category term="杂谈" scheme="https://minibox.coding.me/categories/%E6%9D%82%E8%B0%88/"/>
+      <category term="杂谈" scheme="http://menote.info/categories/%E6%9D%82%E8%B0%88/"/>
     
     
   </entry>
   
   <entry>
     <title>Redis Sentinel原理</title>
-    <link href="https://minibox.coding.me/2016/03/25/Redis%20Sentinel%E5%8E%9F%E7%90%86/"/>
-    <id>https://minibox.coding.me/2016/03/25/Redis Sentinel原理/</id>
+    <link href="http://menote.info/2016/03/25/Redis%20Sentinel%E5%8E%9F%E7%90%86/"/>
+    <id>http://menote.info/2016/03/25/Redis Sentinel原理/</id>
     <published>2016-03-25T09:49:28.000Z</published>
     <updated>2017-04-17T02:08:21.485Z</updated>
     
@@ -489,19 +489,19 @@
     
     </summary>
     
-      <category term="redis" scheme="https://minibox.coding.me/categories/redis/"/>
+      <category term="redis" scheme="http://menote.info/categories/redis/"/>
     
     
-      <category term="redis" scheme="https://minibox.coding.me/tags/redis/"/>
+      <category term="redis" scheme="http://menote.info/tags/redis/"/>
     
-      <category term="sentinel原理" scheme="https://minibox.coding.me/tags/sentinel%E5%8E%9F%E7%90%86/"/>
+      <category term="sentinel原理" scheme="http://menote.info/tags/sentinel%E5%8E%9F%E7%90%86/"/>
     
   </entry>
   
   <entry>
     <title>Redis Sentinel高可用集群搭建及Spring集成</title>
-    <link href="https://minibox.coding.me/2016/03/23/Redis%20Sentinel%E9%AB%98%E5%8F%AF%E7%94%A8%E9%9B%86%E7%BE%A4%E6%90%AD%E5%BB%BA%E5%8F%8ASpring%E9%9B%86%E6%88%90/"/>
-    <id>https://minibox.coding.me/2016/03/23/Redis Sentinel高可用集群搭建及Spring集成/</id>
+    <link href="http://menote.info/2016/03/23/Redis%20Sentinel%E9%AB%98%E5%8F%AF%E7%94%A8%E9%9B%86%E7%BE%A4%E6%90%AD%E5%BB%BA%E5%8F%8ASpring%E9%9B%86%E6%88%90/"/>
+    <id>http://menote.info/2016/03/23/Redis Sentinel高可用集群搭建及Spring集成/</id>
     <published>2016-03-23T09:42:36.000Z</published>
     <updated>2017-04-17T02:08:21.486Z</updated>
     
@@ -583,21 +583,21 @@
     
     </summary>
     
-      <category term="redis" scheme="https://minibox.coding.me/categories/redis/"/>
+      <category term="redis" scheme="http://menote.info/categories/redis/"/>
     
     
-      <category term="redis" scheme="https://minibox.coding.me/tags/redis/"/>
+      <category term="redis" scheme="http://menote.info/tags/redis/"/>
     
-      <category term="sentinel" scheme="https://minibox.coding.me/tags/sentinel/"/>
+      <category term="sentinel" scheme="http://menote.info/tags/sentinel/"/>
     
-      <category term="spring-data-redis" scheme="https://minibox.coding.me/tags/spring-data-redis/"/>
+      <category term="spring-data-redis" scheme="http://menote.info/tags/spring-data-redis/"/>
     
   </entry>
   
   <entry>
     <title>面向对象设计原则</title>
-    <link href="https://minibox.coding.me/2016/02/24/%E9%9D%A2%E5%90%91%E5%AF%B9%E8%B1%A1%E8%AE%BE%E8%AE%A1%E5%8E%9F%E5%88%99/"/>
-    <id>https://minibox.coding.me/2016/02/24/面向对象设计原则/</id>
+    <link href="http://menote.info/2016/02/24/%E9%9D%A2%E5%90%91%E5%AF%B9%E8%B1%A1%E8%AE%BE%E8%AE%A1%E5%8E%9F%E5%88%99/"/>
+    <id>http://menote.info/2016/02/24/面向对象设计原则/</id>
     <published>2016-02-24T09:59:51.000Z</published>
     <updated>2017-04-24T10:01:53.470Z</updated>
     
@@ -799,17 +799,17 @@
     
     </summary>
     
-      <category term="设计模式" scheme="https://minibox.coding.me/categories/%E8%AE%BE%E8%AE%A1%E6%A8%A1%E5%BC%8F/"/>
+      <category term="设计模式" scheme="http://menote.info/categories/%E8%AE%BE%E8%AE%A1%E6%A8%A1%E5%BC%8F/"/>
     
     
-      <category term="设计模式" scheme="https://minibox.coding.me/tags/%E8%AE%BE%E8%AE%A1%E6%A8%A1%E5%BC%8F/"/>
+      <category term="设计模式" scheme="http://menote.info/tags/%E8%AE%BE%E8%AE%A1%E6%A8%A1%E5%BC%8F/"/>
     
   </entry>
   
   <entry>
     <title>hexo添加打赏功能</title>
-    <link href="https://minibox.coding.me/2015/09/21/hexo%E6%B7%BB%E5%8A%A0%E6%89%93%E8%B5%8F%E5%8A%9F%E8%83%BD/"/>
-    <id>https://minibox.coding.me/2015/09/21/hexo添加打赏功能/</id>
+    <link href="http://menote.info/2015/09/21/hexo%E6%B7%BB%E5%8A%A0%E6%89%93%E8%B5%8F%E5%8A%9F%E8%83%BD/"/>
+    <id>http://menote.info/2015/09/21/hexo添加打赏功能/</id>
     <published>2015-09-21T09:39:00.000Z</published>
     <updated>2017-04-24T16:49:50.479Z</updated>
     
@@ -833,12 +833,12 @@
     
     </summary>
     
-      <category term="杂谈" scheme="https://minibox.coding.me/categories/%E6%9D%82%E8%B0%88/"/>
+      <category term="杂谈" scheme="http://menote.info/categories/%E6%9D%82%E8%B0%88/"/>
     
     
-      <category term="hexo" scheme="https://minibox.coding.me/tags/hexo/"/>
+      <category term="hexo" scheme="http://menote.info/tags/hexo/"/>
     
-      <category term="打赏" scheme="https://minibox.coding.me/tags/%E6%89%93%E8%B5%8F/"/>
+      <category term="打赏" scheme="http://menote.info/tags/%E6%89%93%E8%B5%8F/"/>
     
   </entry>
   
