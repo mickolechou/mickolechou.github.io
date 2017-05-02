@@ -10,5 +10,5 @@ Disallow: /css/
 Disallow: /fonts/
 Disallow: /vendors/
 Disallow: /fancybox/
-Sitemap: http://menote.info/sitemap.xml
-Sitemap: http://menote.info/baidusitemap.xml
+Sitemap: https://menote.info/sitemap.xml
+Sitemap: https://menote.info/baidusitemap.xml

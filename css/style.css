@@ -424,7 +424,7 @@ code {
   display: inline-block;
 }
 .header-inner #logo .site-title {
-  font-size: 16px;
+  font-size: 20px;
   display: inline-block;
   vertical-align: top;
   font-weight: 600;
@@ -497,12 +497,12 @@ code {
 .main-nav-link {
   float: left;
   display: block;
-  padding: 0 15px;
+  margin: 0 15px;
 }
 @media screen and (max-width: 559px) {
   .nav-icon,
   .main-nav-link {
-    padding: 0 10px;
+    margin: 0 10px;
   }
 }
 .nav-icon {
@@ -528,6 +528,9 @@ code {
 }
 .main-nav-link .fa {
   margin-right: 5px !important;
+}
+.main-nav-link:hover {
+  border-bottom: 2px solid #e84d1c;
 }
 @media screen and (min-width: 1200px) {
   #sub-nav {
@@ -804,6 +807,11 @@ code {
     border-radius: 8px;
   }
 }
+@media screen and (min-width: 800px) and (max-width: 1199px) {
+  #profile .inner {
+    border-radius: 8px;
+  }
+}
 #profile .inner .base-info #avatar {
   display: block;
   margin: 10px auto 20px;
@@ -960,6 +968,11 @@ code {
   border-radius: 0px;
 }
 @media screen and (min-width: 1200px) {
+  .article-inner {
+    border-radius: 8px;
+  }
+}
+@media screen and (min-width: 800px) and (max-width: 1199px) {
   .article-inner {
     border-radius: 8px;
   }
@@ -1622,6 +1635,11 @@ ol.toc {
     border-radius: 8px;
   }
 }
+@media screen and (min-width: 800px) and (max-width: 1199px) {
+  #comments {
+    border-radius: 8px;
+  }
+}
 #comments a {
   color: #e84d1c;
 }
@@ -1871,6 +1889,11 @@ ol.toc {
   padding: 15px 0;
 }
 @media screen and (min-width: 1200px) {
+  .layout-wrap {
+    border-radius: 8px;
+  }
+}
+@media screen and (min-width: 800px) and (max-width: 1199px) {
   .layout-wrap {
     border-radius: 8px;
   }
