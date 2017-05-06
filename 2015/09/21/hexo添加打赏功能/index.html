@@ -386,8 +386,45 @@ window._bd_share_config={"common":{"bdSnsKey":{},"bdText":"","bdMini":"2","bdMin
     <section id="comments">
     
         
-    <div id="cloud-tie-wrapper" class="cloud-tie-wrapper"></div>
+		<div id="cloud-tie-wrapper" class="cloud-tie-wrapper"></div>
+		<style>
+			#yun-tie-sdk-wrap {
+				padding: 0;
+				background: none;
+			}
+			#yun-tie-sdk-wrap .tie-tab-bar {
+				margin: 5px;
+				border-bottom: 1px solid #dee4e9;
+			
+			}
+			#yun-tie-sdk-wrap .tie-title-bar {
+				padding: 0px;
+			}
+			#yun-tie-sdk-wrap .tie-title-bar .tie-title {
+				font-size: 18PX;
+				font-weight: inherit;
+			}
+			#yun-tie-sdk-wrap .input-box .tie-submit-row {
+				position: relative;
+				height: 40px;
+				background-color: #f7f8f9
+			}
+			#yun-tie-sdk-wrap .input-box .tie-submit-row .tie-submit-btn {
+				background-color: #e84d1c;
+			}
+			#yun-tie-sdk-wrap .tie-tab-bar li.z-fcs {
+				border: 0px;
+				background-color: inherit;
+			}
+			#yun-tie-sdk-wrap .tie-tab-bar li.z-fcs span {
+				color: #e84d1c;
+			}
 
+			#yun-tie-sdk-wrap .tie-panel-bar .tie-empty-tip {
+				padding: 20px 0px;
+			}
+		</style>
+		
     
     </section>
 
@@ -554,15 +591,15 @@ Analyse with <script src="https://s4.cnzz.com/z_stat.php?id=1261832340&web_id=12
         
     
 	<script>
-	  var cloudTieConfig = {
-		url: document.location.href, 
-		sourceId: "",
-		productKey: "undefined",
-		target: "cloud-tie-wrapper"
-	  };
+		var cloudTieConfig = {
+			url: document.location.href,
+			sourceId: "",
+			productKey: "undefined",
+			target: "cloud-tie-wrapper"
+		};
 	</script>
 	<script src="https://img1.cache.netease.com/f2e/tie/yun/sdk/loader.js"></script>
-
+	
 
 
 
